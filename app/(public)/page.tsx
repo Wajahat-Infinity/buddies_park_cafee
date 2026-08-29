@@ -1,3 +1,4 @@
+import { PageEntrance } from "@/components/motion/PageEntrance";
 import { FeaturedCarousel } from "@/components/public/FeaturedCarousel";
 import { HeroCarousel } from "@/components/public/HeroCarousel";
 import { LocationSection } from "@/components/public/LocationSection";
@@ -12,8 +13,12 @@ export default async function Home() {
 
   return (
     <>
-      <HeroCarousel slides={slides} settings={settings} />
-      <FeaturedCarousel items={featured} currency={settings.currency} />
+      <PageEntrance>
+        <HeroCarousel slides={slides} settings={settings} />
+      </PageEntrance>
+      <PageEntrance delay={0.12}>
+        <FeaturedCarousel items={featured} currency={settings.currency} />
+      </PageEntrance>
       <LocationSection settings={settings} />
     </>
   );
