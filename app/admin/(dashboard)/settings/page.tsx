@@ -1,11 +1,9 @@
-/** Placeholder until this screen is built. */
-export default function SettingsPage() {
-  return (
-    <div className="mx-auto max-w-3xl">
-      <h1 className="text-xl font-semibold">Settings</h1>
-      <p className="text-muted-foreground mt-2 text-sm">
-        This screen is not built yet.
-      </p>
-    </div>
-  );
+import { SettingsForm } from "@/components/admin/SettingsForm";
+import { getSettings } from "@/lib/queries";
+
+export const dynamic = "force-dynamic";
+
+export default async function SettingsPage() {
+  const settings = await getSettings();
+  return <SettingsForm settings={settings} />;
 }

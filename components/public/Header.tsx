@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MessageCircle, Phone } from "lucide-react";
 
@@ -33,7 +34,7 @@ export function Header({ settings }: { settings: SiteSettings }) {
       )}
     >
       <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4">
-        <a href="#top" className="flex min-w-0 items-center gap-2.5">
+        <Link href="/" className="flex min-w-0 items-center gap-2.5">
           {logoUrl ? (
             <Image
               src={logoUrl}
@@ -54,9 +55,12 @@ export function Header({ settings }: { settings: SiteSettings }) {
               </span>
             ) : null}
           </span>
-        </a>
+        </Link>
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/menu">Menu</Link>
+          </Button>
           {call ? (
             <Button asChild variant="ghost" size="icon" aria-label="Call us">
               <a href={call}>

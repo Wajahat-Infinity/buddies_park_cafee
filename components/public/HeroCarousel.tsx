@@ -1,17 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import Autoplay from "embla-carousel-autoplay";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
 
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
@@ -22,15 +20,15 @@ import type { CarouselSlide, SiteSettings } from "@/lib/types";
 
 const AUTOPLAY_DELAY = 5000;
 
-/** Shared frame so the carousel and the fallback occupy identical space. */
+/**
+ * Shared frame so the carousel and the fallback occupy identical space.
+ *
+ * `[&>div]:h-full` is required: CarouselContent renders its own wrapper div
+ * that no prop can reach, and without a height there it collapses to zero and
+ * the fill images become invisible.
+ */
 const FRAME = "relative aspect-4/5 w-full overflow-hidden sm:aspect-16/9";
-
-function scrollToMenu(smooth: boolean) {
-  document.getElementById("menu")?.scrollIntoView({
-    behavior: smooth ? "smooth" : "auto",
-    block: "start",
-  });
-}
+const CAROUSEL_FRAME = `${FRAME} [&>div]:h-full`;
 
 export function HeroCarousel({
   slides,
@@ -42,20 +40,14 @@ export function HeroCarousel({
   const reduceMotion = useReducedMotion();
 
   if (slides.length === 0) {
-    return <HeroFallback settings={settings} reduceMotion={!!reduceMotion} />;
+    return <HeroFallback settings={settings} />;
   }
 
   return <SlideCarousel slides={slides} reduceMotion={!!reduceMotion} />;
 }
 
 /** Plain hero used when the owner has not added any active slides yet. */
-function HeroFallback({
-  settings,
-  reduceMotion,
-}: {
-  settings: SiteSettings;
-  reduceMotion: boolean;
-}) {
+function HeroFallback({ settings }: { settings: SiteSettings }) {
   const tagline = clean(settings.tagline);
 
   return (
@@ -69,13 +61,8 @@ function HeroFallback({
             {tagline}
           </p>
         ) : null}
-        <Button
-          size="lg"
-          className="mt-6"
-          onClick={() => scrollToMenu(!reduceMotion)}
-        >
-          View menu
-          <ChevronDown className="size-4" />
+        <Button asChild size="lg" className="mt-6 h-12 px-10 text-base">
+          <Link href="/menu">View menu</Link>
         </Button>
       </div>
     </section>
@@ -99,8 +86,11 @@ function SlideCarousel({
   const [autoplay] = useState(() =>
     Autoplay({
       delay: AUTOPLAY_DELAY,
-      stopOnInteraction: true,
-      stopOnMouseEnter: true,
+      // Keep rotating: pausing on hover left the hero frozen on desktop,
+      // where the pointer sits over it most of the time.
+      stopOnInteraction: false,
+      stopOnMouseEnter: false,
+      playOnInit: true,
     })
   );
 
@@ -133,7 +123,7 @@ function SlideCarousel({
         setApi={setApi}
         opts={{ loop: multiple, align: "start" }}
         plugins={multiple && !reduceMotion ? [autoplay] : []}
-        className={FRAME}
+        className={CAROUSEL_FRAME}
       >
         <CarouselContent className="ml-0 h-full">
           {slides.map((slide, index) => (
@@ -143,25 +133,23 @@ function SlideCarousel({
           ))}
         </CarouselContent>
 
-        {multiple ? (
-          <>
-            <CarouselPrevious className="left-4 hidden sm:flex" />
-            <CarouselNext className="right-4 hidden sm:flex" />
-          </>
-        ) : null}
       </Carousel>
 
       {/* Caption and call to action sit above the images, outside the
           carousel's own overflow so they never clip. */}
-      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-end px-6 pb-10 text-center sm:pb-14">
+      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={active?.id ?? "caption"}
-            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
-            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="max-w-xl text-white drop-shadow"
+            className="max-w-xl text-white"
+            // A text shadow hugs the glyphs. The drop-shadow filter utility
+            // paints an offset copy of each letter, which reads as doubled
+            // text on a bright photo.
+            style={{ textShadow: "0 2px 16px rgba(0,0,0,0.55)" }}
           >
             {title ? (
               <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-5xl">
@@ -169,22 +157,23 @@ function SlideCarousel({
               </h1>
             ) : null}
             {subtitle ? (
-              <p className="mt-2 text-sm text-pretty sm:text-lg">{subtitle}</p>
+              <p className="mt-2 text-sm text-pretty opacity-90 sm:text-lg">
+                {subtitle}
+              </p>
             ) : null}
           </motion.div>
         </AnimatePresence>
 
         <Button
+          asChild
           size="lg"
-          className="pointer-events-auto mt-5"
-          onClick={() => scrollToMenu(!reduceMotion)}
+          className="pointer-events-auto mt-6 h-12 px-10 text-base"
         >
-          View menu
-          <ChevronDown className="size-4" />
+          <Link href="/menu">View menu</Link>
         </Button>
 
         {multiple ? (
-          <div className="pointer-events-auto mt-5 flex gap-2">
+          <div className="pointer-events-auto absolute bottom-6 flex gap-2">
             {slides.map((slide, index) => (
               <button
                 key={slide.id}
@@ -213,11 +202,16 @@ function SlideImage({
   slide: CarouselSlide;
   priority: boolean;
 }) {
-  const [loaded, setLoaded] = useState(false);
+  // `settled` covers both outcomes: a failed image must stop the skeleton too,
+  // otherwise a blocked or missing file leaves a grey box forever.
+  const [settled, setSettled] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const loaded = settled && !failed;
 
   return (
-    <div className="relative size-full">
-      {loaded ? null : <Skeleton className="absolute inset-0 rounded-none" />}
+    <div className="relative size-full overflow-hidden bg-neutral-900">
+      {settled ? null : <Skeleton className="absolute inset-0 rounded-none" />}
+
       <Image
         src={slide.image_url}
         alt={clean(slide.title) ?? ""}
@@ -228,10 +222,15 @@ function SlideImage({
           "object-cover transition-opacity duration-500",
           loaded ? "opacity-100" : "opacity-0"
         )}
-        onLoad={() => setLoaded(true)}
+        onLoad={() => setSettled(true)}
+        onError={() => {
+          setFailed(true);
+          setSettled(true);
+        }}
       />
-      {/* Soft dark gradient keeps the caption readable on any photo. */}
-      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/25 to-transparent" />
+
+      {/* Even scrim keeps the centred caption readable on any photo. */}
+      <div className="absolute inset-0 bg-black/45" />
     </div>
   );
 }

@@ -29,11 +29,11 @@ export function MenuSection({
     categories.find((category) => category.slug === active) ?? categories[0];
 
   return (
-    <section id="menu" className="mx-auto max-w-5xl scroll-mt-16 px-4 py-12">
+    <section className="mx-auto max-w-5xl px-4 py-12">
       <FadeIn>
-        <h2 className="text-center text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h1 className="text-center text-2xl font-semibold tracking-tight sm:text-3xl">
           Our menu
-        </h2>
+        </h1>
       </FadeIn>
 
       <Tabs value={current.slug} onValueChange={setActive} className="mt-6">

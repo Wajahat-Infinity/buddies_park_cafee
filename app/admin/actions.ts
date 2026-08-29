@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { MEDIA_BUCKET, publicUrlToPath, slugify } from "@/lib/storage";
+import { isValidWhatsappNumber } from "@/lib/validation";
 
 /** Every action returns this shape so the client can toast success or failure. */
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -310,6 +311,216 @@ export async function deleteMenuItem(id: string): Promise<ActionResult> {
 
     revalidatePublic();
     revalidatePath("/admin/menu");
+    return { ok: true };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+/* -------------------------------------------------------------- settings --- */
+
+export type SettingsInput = {
+  cafe_name: string;
+  tagline: string | null;
+  logo_url: string | null;
+  phone_display: string | null;
+  phone_whatsapp: string | null;
+  address: string | null;
+  hours: string | null;
+  currency: string;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  whatsapp_greeting: string | null;
+  announcement_text: string | null;
+  announcement_active: boolean;
+};
+
+export async function updateSettings(
+  input: SettingsInput
+): Promise<ActionResult> {
+  try {
+    const supabase = await requireAdmin();
+
+    if (!input.cafe_name.trim()) return { ok: false, error: "Enter a name." };
+    if (!input.currency.trim()) {
+      return { ok: false, error: "Enter a currency symbol." };
+    }
+    if (input.phone_whatsapp && !isValidWhatsappNumber(input.phone_whatsapp)) {
+      return {
+        ok: false,
+        error:
+          "WhatsApp number must be digits only with the country code, no plus sign and no leading zero.",
+      };
+    }
+    if (input.announcement_active && !input.announcement_text?.trim()) {
+      return {
+        ok: false,
+        error: "Write the announcement text before switching it on.",
+      };
+    }
+
+    const { data: current, error: currentError } = await supabase
+      .from("site_settings")
+      .select("logo_url")
+      .eq("id", 1)
+      .maybeSingle();
+    if (currentError) throw currentError;
+
+    const { error } = await supabase
+      .from("site_settings")
+      .update({
+        ...input,
+        cafe_name: input.cafe_name.trim(),
+        currency: input.currency.trim(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", 1);
+    if (error) throw error;
+
+    // A replaced logo leaves the old file orphaned in the bucket.
+    if (current?.logo_url && current.logo_url !== input.logo_url) {
+      await deleteMedia(supabase, current.logo_url);
+    }
+
+    revalidatePublic();
+    revalidatePath("/admin/settings");
+    return { ok: true };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+/* -------------------------------------------------------------- carousel --- */
+
+export type SlideInput = {
+  image_url: string;
+  title: string | null;
+  subtitle: string | null;
+  is_active: boolean;
+};
+
+export async function createSlide(input: SlideInput): Promise<ActionResult> {
+  try {
+    const supabase = await requireAdmin();
+    if (!input.image_url) return { ok: false, error: "Upload an image first." };
+
+    const { data: last, error: lastError } = await supabase
+      .from("carousel_slides")
+      .select("sort_order")
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (lastError) throw lastError;
+
+    const { error } = await supabase
+      .from("carousel_slides")
+      .insert({ ...input, sort_order: (last?.sort_order ?? 0) + 1 });
+    if (error) throw error;
+
+    revalidatePublic();
+    revalidatePath("/admin/carousel");
+    return { ok: true };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function updateSlide(
+  id: string,
+  input: SlideInput
+): Promise<ActionResult> {
+  try {
+    const supabase = await requireAdmin();
+    if (!input.image_url) return { ok: false, error: "Upload an image first." };
+
+    const { data: current, error: currentError } = await supabase
+      .from("carousel_slides")
+      .select("image_url")
+      .eq("id", id)
+      .maybeSingle();
+    if (currentError) throw currentError;
+
+    const { error } = await supabase
+      .from("carousel_slides")
+      .update(input)
+      .eq("id", id);
+    if (error) throw error;
+
+    if (current?.image_url && current.image_url !== input.image_url) {
+      await deleteMedia(supabase, current.image_url);
+    }
+
+    revalidatePublic();
+    revalidatePath("/admin/carousel");
+    return { ok: true };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function moveSlide(
+  id: string,
+  direction: "up" | "down"
+): Promise<ActionResult> {
+  try {
+    const supabase = await requireAdmin();
+    const { data: rows, error } = await supabase
+      .from("carousel_slides")
+      .select("id, sort_order")
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+
+    const ordered = rows ?? [];
+    const index = ordered.findIndex((row) => row.id === id);
+    const target = direction === "up" ? index - 1 : index + 1;
+    if (index === -1 || target < 0 || target >= ordered.length) {
+      return { ok: true };
+    }
+
+    const reordered = [...ordered];
+    [reordered[index], reordered[target]] = [
+      reordered[target],
+      reordered[index],
+    ];
+
+    for (const [position, row] of reordered.entries()) {
+      const { error: updateError } = await supabase
+        .from("carousel_slides")
+        .update({ sort_order: position + 1 })
+        .eq("id", row.id);
+      if (updateError) throw updateError;
+    }
+
+    revalidatePublic();
+    revalidatePath("/admin/carousel");
+    return { ok: true };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function deleteSlide(id: string): Promise<ActionResult> {
+  try {
+    const supabase = await requireAdmin();
+
+    const { data: slide, error: slideError } = await supabase
+      .from("carousel_slides")
+      .select("image_url")
+      .eq("id", id)
+      .maybeSingle();
+    if (slideError) throw slideError;
+
+    const { error } = await supabase
+      .from("carousel_slides")
+      .delete()
+      .eq("id", id);
+    if (error) throw error;
+
+    await deleteMedia(supabase, slide?.image_url);
+
+    revalidatePublic();
+    revalidatePath("/admin/carousel");
     return { ok: true };
   } catch (error) {
     return fail(error);

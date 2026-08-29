@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 import {
@@ -20,7 +22,7 @@ function warn(source: string, error: unknown) {
   console.error(`[queries] ${source} failed:`, error);
 }
 
-export async function getSettings(): Promise<SiteSettings> {
+export const getSettings = cache(async (): Promise<SiteSettings> => {
   if (!hasSupabaseEnv()) return FALLBACK_SETTINGS;
 
   try {
@@ -45,7 +47,7 @@ export async function getSettings(): Promise<SiteSettings> {
     warn("getSettings", error);
     return FALLBACK_SETTINGS;
   }
-}
+})
 
 export async function getActiveSlides(): Promise<CarouselSlide[]> {
   if (!hasSupabaseEnv()) return [];
