@@ -4,6 +4,7 @@ import { FeaturedCarousel } from "@/components/public/FeaturedCarousel";
 import { Footer } from "@/components/public/Footer";
 import { Header } from "@/components/public/Header";
 import { HeroCarousel } from "@/components/public/HeroCarousel";
+import { LocationSection } from "@/components/public/LocationSection";
 import { MenuSection } from "@/components/public/MenuSection";
 import { CartProvider } from "@/context/CartContext";
 import {
@@ -43,6 +44,8 @@ export default async function Home() {
               </p>
             </section>
           ) : null}
+
+          <LocationSection settings={settings} />
 
           <CartBar settings={settings} />
         </main>

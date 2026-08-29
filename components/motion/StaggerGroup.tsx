@@ -3,6 +3,8 @@
 import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
+import { useRevealFallback } from "@/components/motion/FadeIn";
+
 /**
  * Wrap a list in StaggerGroup and each child in StaggerItem to reveal them in
  * sequence as the group enters the viewport.
@@ -17,11 +19,13 @@ export function StaggerGroup({
   stagger?: number;
 }) {
   const reduceMotion = useReducedMotion();
+  const forced = useRevealFallback();
 
   return (
     <motion.div
       className={className}
       initial="hidden"
+      animate={forced ? "visible" : undefined}
       whileInView="visible"
       viewport={{ once: true, amount: 0.1 }}
       variants={{
