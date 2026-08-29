@@ -30,6 +30,14 @@ const AUTOPLAY_DELAY = 5000;
 const FRAME = "relative aspect-4/5 w-full overflow-hidden sm:aspect-16/9";
 const CAROUSEL_FRAME = `${FRAME} [&>div]:h-full`;
 
+/**
+ * The header is 4rem tall and sits transparently over the hero, so the hero
+ * starts that much higher and its top strip shows through it. This belongs on
+ * the outer section: putting it on the carousel alone would leave the caption
+ * overlay, which spans the section, offset from the image.
+ */
+const HERO_OFFSET = "-mt-16";
+
 export function HeroCarousel({
   slides,
   settings,
@@ -51,7 +59,13 @@ function HeroFallback({ settings }: { settings: SiteSettings }) {
   const tagline = clean(settings.tagline);
 
   return (
-    <section className={cn(FRAME, "bg-muted flex items-center justify-center")}>
+    <section
+      className={cn(
+        FRAME,
+        HERO_OFFSET,
+        "bg-muted flex items-center justify-center pt-16"
+      )}
+    >
       <div className="mx-auto max-w-xl px-6 text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-5xl">
           {settings.cafe_name}
@@ -118,7 +132,7 @@ function SlideCarousel({
   const subtitle = clean(active?.subtitle);
 
   return (
-    <section className="relative">
+    <section className={cn("relative", HERO_OFFSET)}>
       <Carousel
         setApi={setApi}
         opts={{ loop: multiple, align: "start" }}
