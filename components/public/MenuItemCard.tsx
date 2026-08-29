@@ -2,18 +2,20 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { Plus, UtensilsCrossed } from "lucide-react";
+import { Minus, Plus, UtensilsCrossed } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { clean, formatPrice } from "@/lib/format";
+import { useCart } from "@/context/CartContext";
 import type { MenuItem } from "@/lib/types";
 
 /**
- * A single menu item. The add action is a placeholder until the cart lands in
- * Part 5; unavailable items can never be added.
+ * A single menu item. The add button turns into a quantity stepper once the
+ * item is in the cart; unavailable items can never be added.
  */
 export function MenuItemCard({
   item,
@@ -25,6 +27,8 @@ export function MenuItemCard({
   className?: string;
 }) {
   const [loaded, setLoaded] = useState(false);
+  const { addItem, increment, decrement, quantityOf } = useCart();
+  const quantity = quantityOf(item.id);
   const description = clean(item.description);
   const imageUrl = clean(item.image_url);
   const tags = (item.tags ?? []).filter(Boolean);
@@ -98,20 +102,69 @@ export function MenuItemCard({
           </div>
         ) : null}
 
-        <Button
-          size="sm"
-          className="mt-auto w-full transition-transform active:scale-95"
-          disabled={soldOut}
-        >
-          {soldOut ? (
-            "Unavailable"
-          ) : (
-            <>
-              <Plus className="size-4" />
-              Add
-            </>
-          )}
-        </Button>
+        <div className="mt-auto pt-1">
+          <AnimatePresence mode="wait" initial={false}>
+            {quantity > 0 && !soldOut ? (
+              <motion.div
+                key="stepper"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+                className="flex items-center justify-between gap-2 rounded-md border p-1"
+              >
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="size-8 transition-transform active:scale-90"
+                  onClick={() => decrement(item.id)}
+                  aria-label={`Remove one ${item.name}`}
+                >
+                  <Minus className="size-4" />
+                </Button>
+                <span
+                  aria-live="polite"
+                  className="min-w-6 text-center text-sm font-semibold tabular-nums"
+                >
+                  {quantity}
+                </span>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="size-8 transition-transform active:scale-90"
+                  onClick={() => increment(item.id)}
+                  aria-label={`Add one more ${item.name}`}
+                >
+                  <Plus className="size-4" />
+                </Button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="add"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+              >
+                <Button
+                  size="sm"
+                  className="w-full transition-transform active:scale-95"
+                  disabled={soldOut}
+                  onClick={() => addItem(item)}
+                >
+                  {soldOut ? (
+                    "Unavailable"
+                  ) : (
+                    <>
+                      <Plus className="size-4" />
+                      Add
+                    </>
+                  )}
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </article>
   );
