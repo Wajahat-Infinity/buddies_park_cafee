@@ -21,10 +21,18 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { clean, formatPrice, telHref } from "@/lib/format";
-import { buildOrderMessage, buildWhatsAppUrl } from "@/lib/whatsapp";
+import {
+  buildOrderMessage,
+  buildWhatsAppUrl,
+  type OrderDetails,
+} from "@/lib/whatsapp";
 import type { SiteSettings } from "@/lib/types";
 
 /** Slide in cart, and the hand off to WhatsApp. */
@@ -48,6 +56,16 @@ export function CartDrawer({
   } = useCart();
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [name, setName] = useState("");
+  const [fulfilment, setFulfilment] =
+    useState<OrderDetails["fulfilment"]>("pickup");
+  const [address, setAddress] = useState("");
+
+  // The order is useless to the cafe without a name, or without an address
+  // when it is going out for delivery.
+  const needsAddress = fulfilment === "delivery";
+  const detailsComplete =
+    name.trim().length > 0 && (!needsAddress || address.trim().length > 0);
   const currency = settings.currency;
   const call = telHref(settings.phone_display);
   const phone = clean(settings.phone_display);
@@ -59,9 +77,13 @@ export function CartDrawer({
   }
 
   function sendOrder() {
-    if (lines.length === 0) return;
+    if (lines.length === 0 || !detailsComplete) return;
 
-    const message = buildOrderMessage(lines, settings);
+    const message = buildOrderMessage(lines, settings, {
+      name,
+      fulfilment,
+      address,
+    });
     const url = buildWhatsAppUrl(message, settings.phone_whatsapp);
     if (!url) return;
 
@@ -71,6 +93,7 @@ export function CartDrawer({
     setSending(false);
     setSent(true);
     clearCart();
+    setAddress("");
   }
 
   return (
@@ -177,6 +200,52 @@ export function CartDrawer({
         {lines.length > 0 ? (
           <SheetFooter className="gap-3">
             <Separator />
+
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="order-name">Your name</Label>
+                <Input
+                  id="order-name"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder="Name for the order"
+                  autoComplete="name"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <span className="text-sm font-medium">Pickup or delivery</span>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["pickup", "delivery"] as const).map((option) => (
+                    <Button
+                      key={option}
+                      type="button"
+                      variant={fulfilment === option ? "default" : "outline"}
+                      className={cn("capitalize")}
+                      onClick={() => setFulfilment(option)}
+                    >
+                      {option}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {needsAddress ? (
+                <div className="space-y-1.5">
+                  <Label htmlFor="order-address">Delivery address</Label>
+                  <Textarea
+                    id="order-address"
+                    value={address}
+                    onChange={(event) => setAddress(event.target.value)}
+                    rows={2}
+                    placeholder="House and street, area"
+                    autoComplete="street-address"
+                  />
+                </div>
+              ) : null}
+            </div>
+
+            <Separator />
             <div className="flex items-center justify-between text-base font-semibold">
               <span>Total</span>
               <span className="tabular-nums">
@@ -188,7 +257,7 @@ export function CartDrawer({
                 size="lg"
                 className="w-full"
                 onClick={sendOrder}
-                disabled={lines.length === 0 || sending}
+                disabled={lines.length === 0 || sending || !detailsComplete}
               >
                 {sending ? <Loader2 className="size-4 animate-spin" /> : null}
                 Send order on WhatsApp
@@ -201,6 +270,14 @@ export function CartDrawer({
                   Call to order{phone ? ` ${phone}` : ""}
                 </a>
               </Button>
+            ) : null}
+
+            {clean(settings.phone_whatsapp) && !detailsComplete ? (
+              <p className="text-muted-foreground text-center text-xs">
+                {name.trim()
+                  ? "Add your delivery address to send the order."
+                  : "Add your name to send the order."}
+              </p>
             ) : null}
           </SheetFooter>
         ) : null}

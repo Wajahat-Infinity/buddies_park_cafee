@@ -2,6 +2,13 @@ import { clean, formatPrice } from "@/lib/format";
 import type { CartLine } from "@/context/CartContext";
 import type { SiteSettings } from "@/lib/types";
 
+/** What the customer fills in before sending, collected in the cart drawer. */
+export type OrderDetails = {
+  name: string;
+  fulfilment: "pickup" | "delivery";
+  address: string;
+};
+
 /** Width the dot leaders aim for before the price column. */
 const LEADER_WIDTH = 34;
 
@@ -31,16 +38,26 @@ function orderLine(line: CartLine, currency: string): string {
   return `${left} ${dots} ${right}`;
 }
 
-/** The full order message, ready to be encoded into a wa.me link. */
+/**
+ * The full order message, ready to be encoded into a wa.me link.
+ *
+ * Customer details are filled in on the site rather than left as blank lines
+ * for the customer to complete inside WhatsApp, which they rarely did.
+ */
 export function buildOrderMessage(
   lines: CartLine[],
-  settings: SiteSettings
+  settings: SiteSettings,
+  details?: OrderDetails
 ): string {
   const currency = settings.currency;
   const total = lines.reduce(
     (sum, line) => sum + line.price * line.quantity,
     0
   );
+
+  const name = clean(details?.name);
+  const delivery = details?.fulfilment === "delivery";
+  const address = clean(details?.address);
 
   return [
     greetingLine(settings),
@@ -49,9 +66,12 @@ export function buildOrderMessage(
     "",
     `Total: ${formatPrice(total, currency)}`,
     "",
-    "Name:",
-    "Pickup or delivery:",
-    "Address (if delivery):",
+    `Name: ${name ?? ""}`,
+    `Pickup or delivery: ${
+      details ? (delivery ? "Delivery" : "Pickup") : ""
+    }`,
+    // The address line is only meaningful for a delivery.
+    ...(delivery ? [`Address: ${address ?? ""}`] : []),
   ].join("\n");
 }
 

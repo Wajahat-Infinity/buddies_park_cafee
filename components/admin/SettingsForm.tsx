@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { updateSettings, type SettingsInput } from "@/app/admin/actions";
 import { isValidWhatsappNumber } from "@/lib/validation";
-import { buildOrderMessage } from "@/lib/whatsapp";
+import { buildOrderMessage, type OrderDetails } from "@/lib/whatsapp";
 import type { CartLine } from "@/context/CartContext";
 import type { SiteSettings } from "@/lib/types";
 
@@ -22,6 +22,13 @@ const PREVIEW_LINES: CartLine[] = [
   { id: "a", name: "Sample item", price: 650, imageUrl: null, quantity: 2 },
   { id: "b", name: "Another item", price: 450, imageUrl: null, quantity: 1 },
 ];
+
+/** Stand in for what the customer types into the cart before sending. */
+const PREVIEW_DETAILS: OrderDetails = {
+  name: "Customer name",
+  fulfilment: "delivery",
+  address: "Their delivery address",
+};
 
 function nullable(value: string): string | null {
   return value.trim() ? value.trim() : null;
@@ -62,12 +69,16 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
   const whatsapp = form.phone_whatsapp.trim();
   const whatsappValid = whatsapp === "" || isValidWhatsappNumber(whatsapp);
 
-  const previewMessage = buildOrderMessage(PREVIEW_LINES, {
-    ...settings,
-    cafe_name: form.cafe_name || settings.cafe_name,
-    currency: form.currency || settings.currency,
-    whatsapp_greeting: nullable(form.whatsapp_greeting),
-  });
+  const previewMessage = buildOrderMessage(
+    PREVIEW_LINES,
+    {
+      ...settings,
+      cafe_name: form.cafe_name || settings.cafe_name,
+      currency: form.currency || settings.currency,
+      whatsapp_greeting: nullable(form.whatsapp_greeting),
+    },
+    PREVIEW_DETAILS
+  );
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
