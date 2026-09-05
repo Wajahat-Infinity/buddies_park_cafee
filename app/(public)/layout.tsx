@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { AnnouncementBar } from "@/components/public/AnnouncementBar";
 import { CartBar } from "@/components/public/CartBar";
 import { Footer } from "@/components/public/Footer";
+import { GardenBackdrop } from "@/components/public/GardenBackdrop";
 import { Header } from "@/components/public/Header";
 import { CartProvider } from "@/context/CartContext";
 import { getSettings } from "@/lib/queries";
@@ -20,7 +21,9 @@ export default async function PublicLayout({
 
   return (
     <CartProvider>
-      <div id="top" className="flex min-h-dvh flex-col">
+      <GardenBackdrop />
+
+      <div id="top" className="relative flex min-h-dvh flex-col">
         <AnnouncementBar settings={settings} />
         <Header settings={settings} />
 

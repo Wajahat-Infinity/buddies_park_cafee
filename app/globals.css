@@ -10,6 +10,7 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-display);
+  --font-hero: var(--font-hero-serif);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,6 +47,17 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Garden cafe extras: foliage, warm timber, clay and sunlight. Exposed to
+     Tailwind so utilities like `bg-leaf` and `text-clay` exist. */
+  --color-leaf: var(--leaf);
+  --color-leaf-deep: var(--leaf-deep);
+  --color-bark: var(--bark);
+  --color-clay: var(--clay);
+  --color-sun: var(--sun);
+  --color-cream: var(--cream);
+  --color-hero-ink: var(--hero-ink);
+  --color-hero-ink-soft: var(--hero-ink-soft);
 }
 
 :root {
@@ -92,40 +104,85 @@
   --sidebar-accent-foreground: oklch(0.3 0.02 60);
   --sidebar-border: oklch(0.9 0.014 80);
   --sidebar-ring: oklch(0.41 0.068 155);
+
+  /* --- Garden cafe scene -------------------------------------------------
+     Foliage, timber, terracotta and afternoon sun. These drive the ambient
+     backdrop and every 3D surface; the shadcn tokens above stay untouched so
+     the admin panel keeps its plain, neutral look. */
+  --leaf: oklch(0.55 0.105 148);
+  --leaf-deep: oklch(0.34 0.062 158);
+  --bark: oklch(0.42 0.048 55);
+  --clay: oklch(0.66 0.135 47);
+  --sun: oklch(0.9 0.09 92);
+  --cream: oklch(0.985 0.012 88);
+
+  /* Hero caption ink. Warm cream over photography reads as candlelight; pure
+     white reads as a caption pasted on top of someone else's picture. */
+  --hero-ink: oklch(0.975 0.032 88);
+  --hero-ink-soft: oklch(0.93 0.042 82);
+
+  /* Elevation ramp. Each level pairs a wide ambient shadow with a tight
+     contact shadow and a light top edge, which is what makes a flat card read
+     as a physical object resting on a table. */
+  --edge-light: inset 0 1px 0 oklch(1 0 0 / 0.85);
+  --shadow-rest:
+    0 1px 2px oklch(0.3 0.04 60 / 0.07), 0 6px 16px -6px oklch(0.3 0.04 60 / 0.16);
+  --shadow-lift:
+    0 2px 4px oklch(0.3 0.04 60 / 0.08), 0 18px 36px -12px oklch(0.3 0.04 60 / 0.28),
+    0 32px 56px -28px oklch(0.34 0.062 158 / 0.3);
+  --shadow-float:
+    0 3px 6px oklch(0.3 0.04 60 / 0.1), 0 28px 60px -18px oklch(0.3 0.04 60 / 0.34);
 }
 
+/* The garden after dark: warm lantern light on deep foliage, never flat grey. */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.18 0.018 152);
+  --foreground: oklch(0.955 0.012 88);
+  --card: oklch(0.225 0.022 150);
+  --card-foreground: oklch(0.955 0.012 88);
+  --popover: oklch(0.225 0.022 150);
+  --popover-foreground: oklch(0.955 0.012 88);
+  --primary: oklch(0.68 0.115 150);
+  --primary-foreground: oklch(0.16 0.02 155);
+  --secondary: oklch(0.28 0.026 148);
+  --secondary-foreground: oklch(0.955 0.012 88);
+  --muted: oklch(0.27 0.024 150);
+  --muted-foreground: oklch(0.74 0.022 95);
+  --accent: oklch(0.7 0.13 52);
+  --accent-foreground: oklch(0.17 0.02 60);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --border: oklch(0.88 0.05 120 / 14%);
+  --input: oklch(0.88 0.05 120 / 18%);
+  --ring: oklch(0.68 0.115 150);
+  --chart-1: oklch(0.68 0.115 150);
+  --chart-2: oklch(0.7 0.13 52);
+  --chart-3: oklch(0.6 0.07 120);
+  --chart-4: oklch(0.75 0.09 88);
+  --chart-5: oklch(0.45 0.04 150);
+  --sidebar: oklch(0.225 0.022 150);
+  --sidebar-foreground: oklch(0.955 0.012 88);
+  --sidebar-primary: oklch(0.68 0.115 150);
+  --sidebar-primary-foreground: oklch(0.16 0.02 155);
+  --sidebar-accent: oklch(0.28 0.026 148);
+  --sidebar-accent-foreground: oklch(0.955 0.012 88);
+  --sidebar-border: oklch(0.88 0.05 120 / 14%);
+  --sidebar-ring: oklch(0.68 0.115 150);
+
+  --leaf: oklch(0.62 0.105 150);
+  --leaf-deep: oklch(0.28 0.045 158);
+  --bark: oklch(0.38 0.04 55);
+  --clay: oklch(0.7 0.13 52);
+  --sun: oklch(0.82 0.1 88);
+  --cream: oklch(0.26 0.024 150);
+  --hero-ink: oklch(0.965 0.035 88);
+  --hero-ink-soft: oklch(0.9 0.05 80);
+
+  --edge-light: inset 0 1px 0 oklch(1 0 0 / 0.09);
+  --shadow-rest: 0 1px 2px oklch(0 0 0 / 0.4), 0 6px 16px -6px oklch(0 0 0 / 0.55);
+  --shadow-lift:
+    0 2px 4px oklch(0 0 0 / 0.45), 0 18px 36px -12px oklch(0 0 0 / 0.6),
+    0 32px 56px -28px oklch(0.62 0.105 150 / 0.22);
+  --shadow-float: 0 3px 6px oklch(0 0 0 / 0.5), 0 28px 60px -18px oklch(0 0 0 / 0.65);
 }
 
 @layer base {
@@ -159,5 +216,305 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3D Cozy Garden Cafe
+   Everything below is scene dressing for the public site: dappled sunlight on
+   the page, foliage drifting behind the content, and surfaces that behave like
+   objects on a table rather than rectangles on a screen. The admin panel opts
+   out simply by not using any of these classes.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Sunlight through the canopy. Fixed, so the light stays put while the page
+   scrolls past it — the same way real light in a room does. Unlayered, so it
+   wins over the `bg-background` utility in @layer base without !important. */
+.garden-scene {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(
+      1100px 620px at 8% -10%,
+      color-mix(in oklch, var(--sun) 45%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      880px 520px at 96% 2%,
+      color-mix(in oklch, var(--leaf) 18%, transparent),
+      transparent 64%
+    ),
+    radial-gradient(
+      1000px 760px at 50% 112%,
+      color-mix(in oklch, var(--clay) 13%, transparent),
+      transparent 70%
+    );
+  background-attachment: fixed;
+}
+
+/* ── Depth ────────────────────────────────────────────────────────────────
+   `.scene` opens a shared perspective; children tilt inside it. Perspective
+   has to live on the parent, otherwise every card gets its own vanishing
+   point and a row of them looks bent rather than laid out on one plane. */
+.scene {
+  perspective: 1400px;
+  perspective-origin: 50% 40%;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* A surface with real weight: warm gradient face, lit top edge, ambient and
+   contact shadows underneath. */
+.surface-3d {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--card) 92%, var(--cream)),
+    var(--card) 55%,
+    color-mix(in oklch, var(--card) 94%, var(--bark))
+  );
+  box-shadow: var(--edge-light), var(--shadow-rest);
+  transition:
+    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.surface-3d:hover {
+  box-shadow: var(--edge-light), var(--shadow-lift);
+}
+
+.shadow-rest {
+  box-shadow: var(--edge-light), var(--shadow-rest);
+}
+.shadow-lift {
+  box-shadow: var(--edge-light), var(--shadow-lift);
+}
+.shadow-float {
+  box-shadow: var(--edge-light), var(--shadow-float);
+}
+
+/* Frosted glass over photography — the header once it leaves the hero. */
+.glass {
+  background-color: color-mix(in oklch, var(--primary) 82%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+
+/* A light sweeps across the surface on hover, the way glazed tile catches a
+   window. Purely decorative, so it never intercepts pointer events. */
+.sheen {
+  position: relative;
+}
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    oklch(1 0 0 / 0.42) 50%,
+    transparent 62%
+  );
+  background-size: 260% 100%;
+  background-position: 130% 0;
+  transition: opacity 0.3s ease;
+}
+.group:hover .sheen::after,
+.sheen:hover::after {
+  opacity: 1;
+  animation: sheen-sweep 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Buttons and chips that depress like a physical key. */
+.press-3d {
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow:
+    0 2px 0 color-mix(in oklch, var(--leaf-deep) 55%, transparent),
+    var(--shadow-rest);
+}
+.press-3d:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 0 color-mix(in oklch, var(--leaf-deep) 55%, transparent),
+    var(--shadow-lift);
+}
+.press-3d:active {
+  transform: translateY(1px);
+  box-shadow:
+    0 1px 0 color-mix(in oklch, var(--leaf-deep) 55%, transparent),
+    var(--shadow-rest);
+}
+
+/* A sprig of leaves either side of a section heading. */
+.leaf-rule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.leaf-rule::before,
+.leaf-rule::after {
+  content: "";
+  height: 1px;
+  width: clamp(2rem, 12vw, 5.5rem);
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklch, var(--leaf) 55%, transparent)
+  );
+}
+.leaf-rule::after {
+  background: linear-gradient(
+    to left,
+    transparent,
+    color-mix(in oklch, var(--leaf) 55%, transparent)
+  );
+}
+
+/* The hero curves away at the bottom like a garden arch or a pergola edge. */
+.arch-bottom {
+  border-bottom-left-radius: 38% 9%;
+  border-bottom-right-radius: 38% 9%;
+}
+
+/* Slow drift applied to the hero photograph, so a still image breathes. */
+.ken-burns {
+  animation: ken-burns 18s ease-in-out infinite alternate;
+}
+
+.float-slow {
+  animation: bob 6s ease-in-out infinite;
+}
+
+/* ── Keyframes ─────────────────────────────────────────────────────────── */
+
+@keyframes sheen-sweep {
+  from {
+    background-position: 130% 0;
+  }
+  to {
+    background-position: -30% 0;
+  }
+}
+
+@keyframes ken-burns {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.09) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* One leaf falling: down the page, across on a breeze, tumbling as it goes. */
+@keyframes leaf-fall {
+  0% {
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--leaf-opacity, 0.5);
+  }
+  90% {
+    opacity: var(--leaf-opacity, 0.5);
+  }
+  100% {
+    transform: translate3d(var(--leaf-drift, 60px), 112vh, 0) rotate(420deg);
+    opacity: 0;
+  }
+}
+
+/* Canopy shifting in the wind. */
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-2.5deg) translateX(-6px);
+  }
+  50% {
+    transform: rotate(2.5deg) translateX(6px);
+  }
+}
+
+/* Light pooling and fading, like sun moving behind clouds. */
+@keyframes bloom {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.12);
+  }
+}
+
+/* Steam off a fresh cup. */
+@keyframes steam {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scaleX(0.85);
+  }
+  35% {
+    opacity: 0.65;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-26px) scaleX(1.5);
+  }
+}
+
+/* The scroll cue nudging downward. */
+@keyframes nudge-down {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translateY(7px);
+    opacity: 1;
+  }
+}
+
+/* A soft halo breathing around the cart bar so it stays noticeable. */
+@keyframes halo {
+  0%,
+  100% {
+    box-shadow:
+      var(--shadow-float),
+      0 0 0 0 color-mix(in oklch, var(--primary) 35%, transparent);
+  }
+  50% {
+    box-shadow:
+      var(--shadow-float),
+      0 0 0 10px color-mix(in oklch, var(--primary) 0%, transparent);
+  }
+}
+
+/* Motion is decoration here, so anyone asking for less simply loses it — the
+   global reduce block above collapses durations, and these run infinitely, so
+   they are switched off outright rather than left flickering at 0.01ms. */
+@media (prefers-reduced-motion: reduce) {
+  .ken-burns,
+  .float-slow,
+  [data-garden-motion] {
+    animation: none !important;
+    transform: none !important;
   }
 }

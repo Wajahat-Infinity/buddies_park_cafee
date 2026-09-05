@@ -6,6 +6,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { MenuItemCard } from "@/components/public/MenuItemCard";
+import { SectionHeading } from "@/components/public/SectionHeading";
 import { cn } from "@/lib/utils";
 import type { CategoryWithItems } from "@/lib/types";
 
@@ -31,9 +32,9 @@ export function MenuSection({
   return (
     <section className="mx-auto max-w-6xl px-4 py-12">
       <FadeIn>
-        <h1 className="text-center text-2xl font-semibold tracking-tight sm:text-3xl">
+        <SectionHeading as="h1" eyebrow="Served all day">
           Our menu
-        </h1>
+        </SectionHeading>
       </FadeIn>
 
       {/* Mobile: a scrolling row of chips. A sidebar would eat the width a
@@ -47,10 +48,10 @@ export function MenuSection({
               onClick={() => setActive(category.slug)}
               aria-current={category.slug === current.slug}
               className={cn(
-                "h-11 shrink-0 rounded-full border px-5 text-sm font-medium transition-colors",
+                "h-11 shrink-0 rounded-full border px-5 text-sm font-medium transition-all duration-300",
                 category.slug === current.slug
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-card hover:bg-muted"
+                  ? "bg-primary text-primary-foreground border-primary shadow-lift scale-105"
+                  : "bg-card shadow-rest hover:-translate-y-0.5 hover:bg-muted"
               )}
             >
               {category.name}
@@ -63,7 +64,7 @@ export function MenuSection({
         {/* Desktop: the category list, sticky so it stays put while the
             cards scroll. */}
         <aside className="hidden self-start lg:sticky lg:top-24 lg:block">
-          <p className="text-muted-foreground px-3 text-xs font-semibold tracking-wider uppercase">
+          <p className="text-clay px-3 text-xs font-semibold tracking-[0.18em] uppercase">
             Categories
           </p>
 
@@ -77,10 +78,10 @@ export function MenuSection({
                   onClick={() => setActive(category.slug)}
                   aria-current={selected}
                   className={cn(
-                    "flex w-full items-center justify-between gap-3 rounded-full px-4 py-3 text-left text-sm font-medium transition-colors",
+                    "flex w-full items-center justify-between gap-3 rounded-full px-4 py-3 text-left text-sm font-medium transition-all duration-300",
                     selected
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted"
+                      ? "bg-primary text-primary-foreground shadow-lift translate-x-1"
+                      : "hover:bg-muted hover:translate-x-1"
                   )}
                 >
                   <span className="truncate">{category.name}</span>
@@ -107,11 +108,12 @@ export function MenuSection({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
             >
-              <h2 className="mb-5 text-lg font-semibold lg:text-xl">
+              <h2 className="font-heading mb-6 flex items-center gap-3 text-lg font-semibold lg:text-xl">
+                <span className="bg-clay/70 h-5 w-1 rounded-full" />
                 {current.name}
               </h2>
 
-              <StaggerGroup className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <StaggerGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 {current.items.map((item) => (
                   <StaggerItem key={item.id}>
                     <MenuItemCard item={item} currency={currency} />

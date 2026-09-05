@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { MenuItemCard } from "@/components/public/MenuItemCard";
+import { SectionHeading } from "@/components/public/SectionHeading";
 import type { MenuItem } from "@/lib/types";
 
 /**
@@ -25,16 +26,19 @@ export function FeaturedCarousel({
   if (items.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-10">
+    <section className="mx-auto max-w-5xl px-4 py-14">
       <FadeIn>
-        <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+        <SectionHeading eyebrow="Fresh from the garden">
           Popular right now
-        </h2>
+        </SectionHeading>
       </FadeIn>
 
       <FadeIn delay={0.1}>
-        <Carousel opts={{ align: "start", loop: false }} className="mt-5">
-          <CarouselContent className="-ml-3">
+        <Carousel opts={{ align: "start", loop: false }} className="mt-8">
+          {/* Vertical padding on the track, not the items: a card lifts and
+              casts a shadow on hover, and without the room it clips against
+              the carousel's own overflow. */}
+          <CarouselContent className="-ml-3 py-4">
             {items.map((item) => (
               <CarouselItem
                 key={item.id}
@@ -44,8 +48,8 @@ export function FeaturedCarousel({
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex" />
-          <CarouselNext className="hidden sm:flex" />
+          <CarouselPrevious className="shadow-rest hidden size-10 border-none sm:flex" />
+          <CarouselNext className="shadow-rest hidden size-10 border-none sm:flex" />
         </Carousel>
       </FadeIn>
     </section>

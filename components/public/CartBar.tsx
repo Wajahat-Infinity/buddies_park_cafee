@@ -35,10 +35,14 @@ export function CartBar({ settings }: { settings: SiteSettings }) {
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="fixed inset-x-0 bottom-0 z-40 p-3"
           >
-            <div className="bg-background mx-auto max-w-md rounded-full border p-1.5 shadow-lg">
+            <div
+              data-garden-motion
+              className="bg-card/85 mx-auto max-w-md rounded-full border p-1.5 backdrop-blur-md"
+              style={{ animation: "halo 3.4s ease-out infinite" }}
+            >
               <Button
                 size="lg"
-                className="w-full justify-between rounded-full"
+                className="h-11 w-full justify-between rounded-full px-5 text-base"
                 onClick={() => setOpen(true)}
               >
                 <span className="flex items-center gap-2">

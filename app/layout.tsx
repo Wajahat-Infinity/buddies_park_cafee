@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Outfit } from "next/font/google";
+import { Fraunces, Geist, Geist_Mono, Outfit } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { getSettings } from "@/lib/queries";
 
@@ -20,6 +20,18 @@ const display = Outfit({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["500", "600", "700"],
+});
+
+/**
+ * The hero caption only. A soft, slightly quirky serif — it carries the warmth
+ * a garden cafe wants, and because it appears once, over photography, it can
+ * afford far more personality than a heading face used throughout.
+ */
+const hero = Fraunces({
+  variable: "--font-hero-serif",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
 /**
@@ -74,7 +86,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} ${hero.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {children}

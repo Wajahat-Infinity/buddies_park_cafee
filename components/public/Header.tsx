@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MessageCircle, Phone } from "lucide-react";
 
+import { motion } from "framer-motion";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { clean, telHref, whatsappHref } from "@/lib/format";
@@ -37,23 +39,34 @@ export function Header({ settings }: { settings: SiteSettings }) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 transition-colors duration-300",
+        "sticky top-0 z-40 transition-all duration-500 ease-out",
         overHero
-          ? "bg-linear-to-b from-black/60 via-black/30 to-transparent text-white"
-          : "bg-primary text-primary-foreground shadow-sm backdrop-blur"
+          ? "bg-linear-to-b from-black/55 via-black/25 to-transparent text-white"
+          : "glass text-primary-foreground shadow-lift border-b border-white/10"
       )}
     >
       <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4">
-        <Link href="/" className="flex min-w-0 items-center gap-2.5">
+        <Link href="/" className="scene group flex min-w-0 items-center gap-2.5">
           {logoUrl ? (
-            <Image
-              src={logoUrl}
-              alt={settings.cafe_name}
-              width={40}
-              height={40}
-              className="size-10 shrink-0 rounded-full object-cover"
-              priority
-            />
+            <motion.span
+              className="relative block shrink-0"
+              whileHover={{ rotateY: 18, rotateX: -8, scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 260, damping: 18 }}
+              style={{ transformStyle: "preserve-3d" }}
+            >
+              {/* A halo behind the mark so it reads as lit rather than pasted
+                  on, on the photo and on the green bar alike. */}
+              <span className="bg-sun/40 absolute -inset-1 rounded-full blur-md transition-opacity duration-300 group-hover:opacity-100 opacity-0" />
+              <Image
+                src={logoUrl}
+                alt={settings.cafe_name}
+                width={40}
+                height={40}
+                className="ring-primary-foreground/25 relative size-10 rounded-full object-cover ring-2"
+                priority
+              />
+            </motion.span>
           ) : null}
           <span className="min-w-0">
             <span
@@ -77,9 +90,12 @@ export function Header({ settings }: { settings: SiteSettings }) {
             asChild
             variant="ghost"
             size="sm"
-            className="text-inherit hover:bg-white/15 hover:text-inherit"
+            className="group/link relative text-inherit hover:bg-white/15 hover:text-inherit"
           >
-            <Link href="/menu">Menu</Link>
+            <Link href="/menu">
+              Menu
+              <span className="absolute inset-x-2.5 bottom-1 h-px origin-center scale-x-0 bg-current transition-transform duration-300 group-hover/link:scale-x-100" />
+            </Link>
           </Button>
 
           {call ? (
@@ -101,10 +117,10 @@ export function Header({ settings }: { settings: SiteSettings }) {
               asChild
               size="sm"
               className={cn(
-                "gap-1.5",
+                "gap-1.5 rounded-full transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0",
                 overHero
-                  ? "bg-white/15 text-white backdrop-blur hover:bg-white/25"
-                  : "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                  ? "border border-white/25 bg-white/15 text-white shadow-rest backdrop-blur hover:bg-white/25"
+                  : "bg-primary-foreground text-primary shadow-rest hover:bg-primary-foreground/90"
               )}
             >
               <a href={chat} target="_blank" rel="noopener noreferrer">
