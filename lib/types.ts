@@ -13,6 +13,12 @@ export type SiteSettings = {
   instagram_url: string | null;
   facebook_url: string | null;
   whatsapp_greeting: string | null;
+  /** Flat charge added to a delivery order. 0 means delivery is free. */
+  delivery_fee: number;
+  /** Subtotal at which the fee is waived. Null means it always applies. */
+  free_delivery_over: number | null;
+  /** Shown under the delivery address field, e.g. an area limit. */
+  delivery_note: string | null;
   announcement_text: string | null;
   announcement_active: boolean;
   updated_at: string | null;
@@ -72,6 +78,9 @@ export const FALLBACK_SETTINGS: SiteSettings = {
   instagram_url: null,
   facebook_url: null,
   whatsapp_greeting: null,
+  delivery_fee: 0,
+  free_delivery_over: null,
+  delivery_note: null,
   announcement_text: null,
   announcement_active: false,
   updated_at: null,

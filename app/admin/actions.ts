@@ -331,6 +331,9 @@ export type SettingsInput = {
   instagram_url: string | null;
   facebook_url: string | null;
   whatsapp_greeting: string | null;
+  delivery_fee: number;
+  free_delivery_over: number | null;
+  delivery_note: string | null;
   announcement_text: string | null;
   announcement_active: boolean;
 };
@@ -350,6 +353,23 @@ export async function updateSettings(
         ok: false,
         error:
           "WhatsApp number must be digits only with the country code, no plus sign and no leading zero.",
+      };
+    }
+    if (!Number.isFinite(input.delivery_fee) || input.delivery_fee < 0) {
+      return {
+        ok: false,
+        error: "Delivery charge must be a number, and cannot be negative.",
+      };
+    }
+    if (
+      input.free_delivery_over !== null &&
+      (!Number.isFinite(input.free_delivery_over) ||
+        input.free_delivery_over <= 0)
+    ) {
+      return {
+        ok: false,
+        error:
+          "Free delivery over must be a number above zero, or left empty.",
       };
     }
     if (input.announcement_active && !input.announcement_text?.trim()) {

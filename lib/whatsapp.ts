@@ -1,11 +1,12 @@
 import { clean, formatPrice } from "@/lib/format";
+import { deliveryFee, type Fulfilment } from "@/lib/delivery";
 import type { CartLine } from "@/context/CartContext";
 import type { SiteSettings } from "@/lib/types";
 
 /** What the customer fills in before sending, collected in the cart drawer. */
 export type OrderDetails = {
   name: string;
-  fulfilment: "pickup" | "delivery";
+  fulfilment: Fulfilment;
   address: string;
 };
 
@@ -50,7 +51,7 @@ export function buildOrderMessage(
   details?: OrderDetails
 ): string {
   const currency = settings.currency;
-  const total = lines.reduce(
+  const subtotal = lines.reduce(
     (sum, line) => sum + line.price * line.quantity,
     0
   );
@@ -58,13 +59,24 @@ export function buildOrderMessage(
   const name = clean(details?.name);
   const delivery = details?.fulfilment === "delivery";
   const address = clean(details?.address);
+  const fee = deliveryFee(settings, subtotal, details?.fulfilment);
+
+  // A pickup order, and a cafe that charges nothing, keep the single total
+  // line rather than a breakdown that only ever reads "Delivery: Rs 0".
+  const totals = fee
+    ? [
+        `Subtotal: ${formatPrice(subtotal, currency)}`,
+        `Delivery: ${formatPrice(fee, currency)}`,
+        `Total: ${formatPrice(subtotal + fee, currency)}`,
+      ]
+    : [`Total: ${formatPrice(subtotal, currency)}`];
 
   return [
     greetingLine(settings),
     "",
     ...lines.map((line) => orderLine(line, currency)),
     "",
-    `Total: ${formatPrice(total, currency)}`,
+    ...totals,
     "",
     `Name: ${name ?? ""}`,
     `Pickup or delivery: ${

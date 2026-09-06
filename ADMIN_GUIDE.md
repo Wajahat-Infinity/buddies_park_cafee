@@ -185,6 +185,32 @@ call instead.
 
 ---
 
+## 8a. Charging for delivery
+
+1. Tap **Settings**.
+2. Scroll to **Ordering**.
+3. Fill in what applies:
+
+   - **Delivery charge** — the amount added to a delivery order, for example
+     `150`. Numbers only, no currency symbol. Leave it empty and delivery is
+     free.
+   - **Free delivery over** — waives the charge once the food alone comes to
+     this much, for example `2000`. Leave it empty to always charge.
+   - **Delivery note** — a line customers see under the address box, for
+     example `Delivery within 5 km only`.
+
+4. Watch the **Customers will send** box underneath. It updates as you type, so
+   you can see the exact message before you save.
+5. Tap **Save settings**.
+
+The charge is **never** added to a pickup order. Customers see it on the
+delivery button, in their total, and in the WhatsApp message they send you.
+
+There is no online payment, so this is a number you and the customer have both
+agreed on before the food leaves — not something the site collects.
+
+---
+
 ## 9. Putting a message at the top of the site
 
 Use this for things like "Closed today" or "New winter menu".
@@ -220,6 +246,7 @@ All of these live under **Settings**.
 - **Instagram and Facebook links** — paste the full web address. Leave empty to
   hide that icon.
 - **Order greeting** — the first line of the WhatsApp message customers send.
+- **Delivery charge, Free delivery over, Delivery note** — see section 8a.
 
 Under **Ordering** there is a grey box headed **Customers will send**. That is
 a live preview of the exact message a customer sends you. Change the greeting
@@ -235,7 +262,8 @@ There is no online payment. Orders arrive as WhatsApp messages.
 
 1. The customer browses the menu and taps **Add** on what they want.
 2. A bar appears at the bottom showing their total.
-3. They tap it, check the list, and tap **Send order on WhatsApp**.
+3. They tap it, choose pickup or delivery, check the list and the total
+   (delivery charge included), and tap **Send order on WhatsApp**.
 4. WhatsApp opens on their phone with the order already written out.
 5. They press send, and it arrives on your WhatsApp.
 

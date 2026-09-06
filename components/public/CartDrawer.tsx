@@ -27,6 +27,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
+import { deliveryFee } from "@/lib/delivery";
 import { clean, formatPrice, telHref } from "@/lib/format";
 import {
   buildOrderMessage,
@@ -48,7 +49,7 @@ export function CartDrawer({
   const {
     lines,
     itemCount,
-    total,
+    total: subtotal,
     increment,
     decrement,
     removeItem,
@@ -69,6 +70,19 @@ export function CartDrawer({
   const currency = settings.currency;
   const call = telHref(settings.phone_display);
   const phone = clean(settings.phone_display);
+
+  // Zero unless this is a delivery the cafe charges for, so the breakdown only
+  // appears when there is something to break down.
+  const fee = deliveryFee(settings, subtotal, fulfilment);
+  // A charge the free delivery threshold has just cancelled. Worth saying out
+  // loud, because the delivery button still advertises the charge.
+  const feeWaived =
+    fulfilment === "delivery" && fee === 0 && Number(settings.delivery_fee) > 0;
+  const deliveryNote = clean(settings.delivery_note);
+  // What the delivery button advertises before it is chosen.
+  const feeHint = Number(settings.delivery_fee) > 0
+    ? formatPrice(Number(settings.delivery_fee), currency)
+    : null;
 
   function handleOpenChange(next: boolean) {
     onOpenChange(next);
@@ -225,6 +239,11 @@ export function CartDrawer({
                       onClick={() => setFulfilment(option)}
                     >
                       {option}
+                      {option === "delivery" && feeHint ? (
+                        <span className="text-xs font-normal opacity-80">
+                          +{feeHint}
+                        </span>
+                      ) : null}
                     </Button>
                   ))}
                 </div>
@@ -241,15 +260,36 @@ export function CartDrawer({
                     placeholder="House and street, area"
                     autoComplete="street-address"
                   />
+                  {deliveryNote ? (
+                    <p className="text-muted-foreground text-xs">
+                      {deliveryNote}
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
             </div>
 
             <Separator />
+            {fee || feeWaived ? (
+              <div className="text-muted-foreground space-y-1 text-sm">
+                <div className="flex items-center justify-between">
+                  <span>Subtotal</span>
+                  <span className="tabular-nums">
+                    {formatPrice(subtotal, currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Delivery</span>
+                  <span className={fee ? "tabular-nums" : "text-primary"}>
+                    {fee ? formatPrice(fee, currency) : "Free"}
+                  </span>
+                </div>
+              </div>
+            ) : null}
             <div className="flex items-center justify-between text-base font-semibold">
               <span>Total</span>
               <span className="tabular-nums">
-                {formatPrice(total, currency)}
+                {formatPrice(subtotal + fee, currency)}
               </span>
             </div>
             {clean(settings.phone_whatsapp) ? (

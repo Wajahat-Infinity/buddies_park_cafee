@@ -51,7 +51,10 @@ are compiled into the browser bundle and would bypass every security policy.
    level security, storage policies). The bucket must exist first.
 3. SQL Editor → run [`supabase/seed.sql`](supabase/seed.sql) (settings row,
    categories, placeholder items).
-4. Authentication → Users → add the admin user. Then turn public sign ups off.
+4. SQL Editor → run
+   [`supabase/add-delivery-charge.sql`](supabase/add-delivery-charge.sql)
+   (delivery charge settings columns).
+5. Authentication → Users → add the admin user. Then turn public sign ups off.
 
 ---
 

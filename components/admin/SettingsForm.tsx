@@ -34,6 +34,16 @@ function nullable(value: string): string | null {
   return value.trim() ? value.trim() : null;
 }
 
+/**
+ * Reads a money field. Empty is `null` — meaning "not set" — and anything that
+ * is not a number comes back as NaN, so the form can refuse it rather than
+ * quietly saving a zero.
+ */
+function amount(value: string): number | null {
+  const trimmed = value.trim();
+  return trimmed ? Number(trimmed) : null;
+}
+
 export function SettingsForm({ settings }: { settings: SiteSettings }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -49,6 +59,11 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
     instagram_url: settings.instagram_url ?? "",
     facebook_url: settings.facebook_url ?? "",
     whatsapp_greeting: settings.whatsapp_greeting ?? "",
+    delivery_fee: settings.delivery_fee ? String(settings.delivery_fee) : "",
+    free_delivery_over: settings.free_delivery_over
+      ? String(settings.free_delivery_over)
+      : "",
+    delivery_note: settings.delivery_note ?? "",
     announcement_text: settings.announcement_text ?? "",
   });
   const [logoUrl, setLogoUrl] = useState<string | null>(settings.logo_url);
@@ -69,6 +84,16 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
   const whatsapp = form.phone_whatsapp.trim();
   const whatsappValid = whatsapp === "" || isValidWhatsappNumber(whatsapp);
 
+  // An empty charge means free delivery, which is a valid answer; a typo is not.
+  const fee = amount(form.delivery_fee);
+  const feeValid = fee === null || (Number.isFinite(fee) && fee >= 0);
+  const threshold = amount(form.free_delivery_over);
+  const thresholdValid =
+    threshold === null || (Number.isFinite(threshold) && threshold > 0);
+  const canSave = whatsappValid && feeValid && thresholdValid;
+
+  // The preview details order a delivery, so the owner sees the charge land in
+  // the message as they type it.
   const previewMessage = buildOrderMessage(
     PREVIEW_LINES,
     {
@@ -76,6 +101,8 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
       cafe_name: form.cafe_name || settings.cafe_name,
       currency: form.currency || settings.currency,
       whatsapp_greeting: nullable(form.whatsapp_greeting),
+      delivery_fee: feeValid && fee !== null ? fee : 0,
+      free_delivery_over: thresholdValid ? threshold : null,
     },
     PREVIEW_DETAILS
   );
@@ -95,6 +122,9 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
       instagram_url: nullable(form.instagram_url),
       facebook_url: nullable(form.facebook_url),
       whatsapp_greeting: nullable(form.whatsapp_greeting),
+      delivery_fee: fee ?? 0,
+      free_delivery_over: threshold,
+      delivery_note: nullable(form.delivery_note),
       announcement_text: nullable(form.announcement_text),
       announcement_active: announcementActive,
     };
@@ -207,6 +237,61 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
           <Input id="whatsapp_greeting" {...field("whatsapp_greeting")} />
         </div>
 
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="delivery_fee">Delivery charge</Label>
+            <Input
+              id="delivery_fee"
+              inputMode="decimal"
+              placeholder="0"
+              aria-invalid={!feeValid}
+              {...field("delivery_fee")}
+            />
+            {feeValid ? (
+              <p className="text-muted-foreground text-xs">
+                Added to delivery orders only. Leave empty for free delivery.
+              </p>
+            ) : (
+              <p className="text-destructive text-xs">
+                Enter a number, or leave it empty.
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="free_delivery_over">Free delivery over</Label>
+            <Input
+              id="free_delivery_over"
+              inputMode="decimal"
+              placeholder="No limit"
+              aria-invalid={!thresholdValid}
+              {...field("free_delivery_over")}
+            />
+            {thresholdValid ? (
+              <p className="text-muted-foreground text-xs">
+                Waives the charge once the food alone reaches this much. Leave
+                empty to always charge.
+              </p>
+            ) : (
+              <p className="text-destructive text-xs">
+                Enter a number above zero, or leave it empty.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="delivery_note">Delivery note</Label>
+          <Input
+            id="delivery_note"
+            placeholder="Delivery within 5 km only"
+            {...field("delivery_note")}
+          />
+          <p className="text-muted-foreground text-xs">
+            Shown under the address box when a customer chooses delivery.
+          </p>
+        </div>
+
         <div className="space-y-2">
           <p className="text-sm font-medium">Customers will send</p>
           <pre className="bg-muted overflow-x-auto rounded-lg border p-3 text-xs whitespace-pre-wrap">
@@ -240,7 +325,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
         </div>
       </section>
 
-      <Button type="submit" size="lg" disabled={pending || !whatsappValid}>
+      <Button type="submit" size="lg" disabled={pending || !canSave}>
         {pending ? <Loader2 className="size-4 animate-spin" /> : null}
         Save settings
       </Button>
