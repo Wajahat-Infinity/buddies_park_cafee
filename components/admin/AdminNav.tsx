@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import {
+  BadgePercent,
   Images,
   LayoutDashboard,
   ListTree,
@@ -21,6 +22,7 @@ import { createClient } from "@/lib/supabase/client";
 const LINKS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/menu", label: "Menu", icon: SquareMenu },
+  { href: "/admin/deals", label: "Deals", icon: BadgePercent },
   { href: "/admin/categories", label: "Categories", icon: ListTree },
   { href: "/admin/carousel", label: "Carousel", icon: Images },
   { href: "/admin/settings", label: "Settings", icon: Settings },
@@ -122,7 +124,7 @@ export function AdminNav({ email }: { email: string | null }) {
       </div>
 
       {/* Mobile bottom navigation */}
-      <nav className="bg-card fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t md:hidden">
+      <nav className="bg-card fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t md:hidden">
         {LINKS.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}

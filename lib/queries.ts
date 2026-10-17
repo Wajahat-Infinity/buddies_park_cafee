@@ -8,6 +8,7 @@ import {
   FALLBACK_SETTINGS,
   type CarouselSlide,
   type CategoryWithItems,
+  type Deal,
   type MenuItem,
   type SiteSettings,
 } from "@/lib/types";
@@ -65,6 +66,30 @@ export async function getActiveSlides(): Promise<CarouselSlide[]> {
     return (data ?? []) as CarouselSlide[];
   } catch (error) {
     warn("getActiveSlides", error);
+    return [];
+  }
+}
+
+/** Deals switched on in the admin panel, in sort order. */
+export async function getActiveDeals(): Promise<Deal[]> {
+  if (!hasSupabaseEnv()) return [];
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("deals")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+    return ((data ?? []) as Deal[]).map((deal) => ({
+      ...deal,
+      items: (deal.items ?? []).filter(Boolean),
+    }));
+  } catch (error) {
+    warn("getActiveDeals", error);
     return [];
   }
 }

@@ -54,7 +54,9 @@ are compiled into the browser bundle and would bypass every security policy.
 4. SQL Editor → run
    [`supabase/add-delivery-charge.sql`](supabase/add-delivery-charge.sql)
    (delivery charge settings columns).
-5. Authentication → Users → add the admin user. Then turn public sign ups off.
+5. SQL Editor → run [`supabase/add-deals.sql`](supabase/add-deals.sql)
+   (deals table, filled with the poster deals; photos ship in `public/deals/`).
+6. Authentication → Users → add the admin user. Then turn public sign ups off.
 
 ---
 

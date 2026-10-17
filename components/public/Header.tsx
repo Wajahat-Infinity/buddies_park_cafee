@@ -13,6 +13,11 @@ import { cn } from "@/lib/utils";
 import { clean, telHref, whatsappHref } from "@/lib/format";
 import type { SiteSettings } from "@/lib/types";
 
+const NAV_LINKS = [
+  { href: "/deals", label: "Deals" },
+  { href: "/menu", label: "Menu" },
+] as const;
+
 /**
  * Sticky header. On the home page it sits transparently over the hero
  * carousel and turns solid once the page scrolls; everywhere else it is solid
@@ -86,17 +91,28 @@ export function Header({ settings }: { settings: SiteSettings }) {
         </Link>
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5">
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="group/link relative text-inherit hover:bg-white/15 hover:text-inherit"
-          >
-            <Link href="/menu">
-              Menu
-              <span className="absolute inset-x-2.5 bottom-1 h-px origin-center scale-x-0 bg-current transition-transform duration-300 group-hover/link:scale-x-100" />
-            </Link>
-          </Button>
+          {NAV_LINKS.map(({ href, label }) => (
+            <Button
+              key={href}
+              asChild
+              variant="ghost"
+              size="sm"
+              className="group/link relative text-inherit hover:bg-white/15 hover:text-inherit"
+            >
+              <Link
+                href={href}
+                aria-current={pathname === href ? "page" : undefined}
+              >
+                {label}
+                <span
+                  className={cn(
+                    "absolute inset-x-2.5 bottom-1 h-px origin-center bg-current transition-transform duration-300 group-hover/link:scale-x-100",
+                    pathname === href ? "scale-x-100" : "scale-x-0"
+                  )}
+                />
+              </Link>
+            </Button>
+          ))}
 
           {call ? (
             <Button

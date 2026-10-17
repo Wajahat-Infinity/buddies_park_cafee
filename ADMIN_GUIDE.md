@@ -16,6 +16,7 @@ You can do all of it from your phone.
 3. [Adding a new item](#3-adding-a-new-item)
 4. [Marking something sold out](#4-marking-something-sold-out)
 5. [Choosing which items are featured](#5-choosing-which-items-are-featured)
+5a. [Adding and changing deals](#5a-adding-and-changing-deals)
 6. [Adding and reordering categories](#6-adding-and-reordering-categories)
 7. [Photos for the big slideshow](#7-photos-for-the-big-slideshow)
 8. [Changing the WhatsApp number](#8-changing-the-whatsapp-number)
@@ -121,6 +122,25 @@ the site, which is fine.
 
 An item that is sold out will not show in the featured row even if it is
 switched on.
+
+---
+
+## 5a. Adding and changing deals
+
+Deals appear in the "Buddies' hot deals" row right under the slideshow on the
+front page, and all together on the **Deals** page (linked at the top of the
+site). Customers add a deal to their order with one tap, and it arrives on
+WhatsApp as, for example, "1 x Shawarma Duo (Deal)".
+
+1. Tap **Deals**, then **New deal** (or the pencil next to an existing one).
+2. Fill in the name, the deal price, and what is in the deal, **one item per
+   line**, e.g. `2 Chicken Shawarmas`.
+3. **Badge** is optional: a short note on the photo such as `Serves 4-5`.
+4. Upload a photo. A wide photo with all the food in it looks best.
+5. Use **Sort order** to choose the order: lower numbers come first.
+
+To stop a deal for a while, turn off **Live on website** instead of deleting
+it. If no deal is live, the deals row disappears from the front page.
 
 ---
 

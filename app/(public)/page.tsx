@@ -1,13 +1,20 @@
 import { PageEntrance } from "@/components/motion/PageEntrance";
+import { DealsSection } from "@/components/public/DealsSection";
 import { FeaturedCarousel } from "@/components/public/FeaturedCarousel";
 import { HeroCarousel } from "@/components/public/HeroCarousel";
 import { LocationSection } from "@/components/public/LocationSection";
-import { getActiveSlides, getFeaturedItems, getSettings } from "@/lib/queries";
+import {
+  getActiveDeals,
+  getActiveSlides,
+  getFeaturedItems,
+  getSettings,
+} from "@/lib/queries";
 
 export default async function Home() {
-  const [settings, slides, featured] = await Promise.all([
+  const [settings, slides, deals, featured] = await Promise.all([
     getSettings(),
     getActiveSlides(),
+    getActiveDeals(),
     getFeaturedItems(),
   ]);
 
@@ -15,6 +22,10 @@ export default async function Home() {
     <>
       <PageEntrance>
         <HeroCarousel slides={slides} settings={settings} />
+      </PageEntrance>
+      {/* Deals first: they are the strongest reason to order today. */}
+      <PageEntrance delay={0.08}>
+        <DealsSection deals={deals} currency={settings.currency} />
       </PageEntrance>
       <PageEntrance delay={0.12}>
         <FeaturedCarousel items={featured} currency={settings.currency} />

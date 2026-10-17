@@ -57,6 +57,21 @@ export type CarouselSlide = {
   created_at: string | null;
 };
 
+/** A bundle sold as one line at one price. See supabase/add-deals.sql. */
+export type Deal = {
+  id: string;
+  name: string;
+  /** One line per thing in the box, e.g. "2 Chicken Shawarmas". */
+  items: string[];
+  price: number;
+  /** Short highlight on the photo, e.g. "Serves 4-5". */
+  badge: string | null;
+  image_url: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string | null;
+};
+
 /** A category with its menu items nested, as the public menu renders it. */
 export type CategoryWithItems = Category & { items: MenuItem[] };
 

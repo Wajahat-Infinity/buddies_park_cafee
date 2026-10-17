@@ -23,11 +23,20 @@ export type CartLine = {
   quantity: number;
 };
 
+/**
+ * Anything the cart can sell: a menu item as it is, or a deal mapped onto the
+ * same few fields. Deal and item ids are both uuids, so lines never collide.
+ */
+export type Orderable = Pick<
+  MenuItem,
+  "id" | "name" | "price" | "image_url" | "is_available"
+>;
+
 type CartValue = {
   lines: CartLine[];
   itemCount: number;
   total: number;
-  addItem: (item: MenuItem) => void;
+  addItem: (item: Orderable) => void;
   increment: (id: string) => void;
   decrement: (id: string) => void;
   removeItem: (id: string) => void;
@@ -40,7 +49,7 @@ const CartContext = createContext<CartValue | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
 
-  const addItem = useCallback((item: MenuItem) => {
+  const addItem = useCallback((item: Orderable) => {
     if (!item.is_available) return;
 
     setLines((current) => {

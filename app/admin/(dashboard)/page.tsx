@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 async function getCounts() {
   const supabase = await createClient();
 
-  const [categories, items, slides, unavailable] = await Promise.all([
+  const [categories, items, slides, unavailable, deals] = await Promise.all([
     supabase.from("categories").select("*", { count: "exact", head: true }),
     supabase.from("menu_items").select("*", { count: "exact", head: true }),
     supabase
@@ -20,6 +20,10 @@ async function getCounts() {
       .from("menu_items")
       .select("*", { count: "exact", head: true })
       .eq("is_available", false),
+    supabase
+      .from("deals")
+      .select("*", { count: "exact", head: true })
+      .eq("is_active", true),
   ]);
 
   return {
@@ -27,6 +31,7 @@ async function getCounts() {
     items: items.count ?? 0,
     slides: slides.count ?? 0,
     unavailable: unavailable.count ?? 0,
+    deals: deals.count ?? 0,
   };
 }
 
@@ -36,6 +41,7 @@ export default async function AdminDashboard() {
   const cards = [
     { label: "Categories", value: counts.categories, href: "/admin/categories" },
     { label: "Menu items", value: counts.items, href: "/admin/menu" },
+    { label: "Live deals", value: counts.deals, href: "/admin/deals" },
     { label: "Active slides", value: counts.slides, href: "/admin/carousel" },
     { label: "Sold out", value: counts.unavailable, href: "/admin/menu" },
   ];
@@ -52,7 +58,7 @@ export default async function AdminDashboard() {
         </Button>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
         {cards.map((card) => (
           <Link
             key={card.label}

@@ -31,9 +31,10 @@ function fail(error: unknown): ActionResult {
   return { ok: false, error: message };
 }
 
-/** Public pages read this data, so every mutation refreshes the home page. */
+/** Public pages read this data, so every mutation refreshes them. */
 function revalidatePublic() {
   revalidatePath("/", "page");
+  revalidatePath("/deals", "page");
 }
 
 /** Removes an image from the bucket, ignoring URLs we do not own. */
@@ -541,6 +542,133 @@ export async function deleteSlide(id: string): Promise<ActionResult> {
 
     revalidatePublic();
     revalidatePath("/admin/carousel");
+    return { ok: true };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+/* ----------------------------------------------------------------- deals --- */
+
+export type DealInput = {
+  name: string;
+  items: string[];
+  price: number;
+  badge: string | null;
+  image_url: string | null;
+  is_active: boolean;
+  sort_order: number;
+};
+
+function validateDeal(input: DealInput): string | null {
+  if (!input.name.trim()) return "Enter a deal name.";
+  if (input.items.length === 0) return "List at least one thing in the deal.";
+  if (!Number.isFinite(input.price) || input.price < 0) {
+    return "Enter a valid price.";
+  }
+  return null;
+}
+
+function cleanDeal(input: DealInput): DealInput {
+  return {
+    ...input,
+    name: input.name.trim(),
+    items: input.items.map((line) => line.trim()).filter(Boolean),
+    badge: input.badge?.trim() || null,
+  };
+}
+
+export async function createDeal(input: DealInput): Promise<ActionResult> {
+  try {
+    const supabase = await requireAdmin();
+    const deal = cleanDeal(input);
+    const invalid = validateDeal(deal);
+    if (invalid) return { ok: false, error: invalid };
+
+    const { error } = await supabase.from("deals").insert(deal);
+    if (error) throw error;
+
+    revalidatePublic();
+    revalidatePath("/admin/deals");
+    return { ok: true };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function updateDeal(
+  id: string,
+  input: DealInput
+): Promise<ActionResult> {
+  try {
+    const supabase = await requireAdmin();
+    const deal = cleanDeal(input);
+    const invalid = validateDeal(deal);
+    if (invalid) return { ok: false, error: invalid };
+
+    const { data: current, error: currentError } = await supabase
+      .from("deals")
+      .select("image_url")
+      .eq("id", id)
+      .maybeSingle();
+    if (currentError) throw currentError;
+
+    const { error } = await supabase.from("deals").update(deal).eq("id", id);
+    if (error) throw error;
+
+    // A replaced photo leaves the old file orphaned in the bucket. The photos
+    // that ship with the site are not in the bucket and are left alone.
+    if (current?.image_url && current.image_url !== deal.image_url) {
+      await deleteMedia(supabase, current.image_url);
+    }
+
+    revalidatePublic();
+    revalidatePath("/admin/deals");
+    return { ok: true };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+/** Used by the inline switch on the deals list. */
+export async function setDealActive(
+  id: string,
+  value: boolean
+): Promise<ActionResult> {
+  try {
+    const supabase = await requireAdmin();
+    const { error } = await supabase
+      .from("deals")
+      .update({ is_active: value })
+      .eq("id", id);
+    if (error) throw error;
+
+    revalidatePublic();
+    revalidatePath("/admin/deals");
+    return { ok: true };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function deleteDeal(id: string): Promise<ActionResult> {
+  try {
+    const supabase = await requireAdmin();
+
+    const { data: deal, error: dealError } = await supabase
+      .from("deals")
+      .select("image_url")
+      .eq("id", id)
+      .maybeSingle();
+    if (dealError) throw dealError;
+
+    const { error } = await supabase.from("deals").delete().eq("id", id);
+    if (error) throw error;
+
+    await deleteMedia(supabase, deal?.image_url);
+
+    revalidatePublic();
+    revalidatePath("/admin/deals");
     return { ok: true };
   } catch (error) {
     return fail(error);

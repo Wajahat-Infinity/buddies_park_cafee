@@ -2,7 +2,7 @@
 
 export const MEDIA_BUCKET = "media";
 
-export type MediaFolder = "logo" | "menu" | "carousel";
+export type MediaFolder = "logo" | "menu" | "carousel" | "deals";
 
 const PUBLIC_PREFIX = `/storage/v1/object/public/${MEDIA_BUCKET}/`;
 

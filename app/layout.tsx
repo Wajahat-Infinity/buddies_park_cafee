@@ -19,7 +19,8 @@ const geistMono = Geist_Mono({
 const display = Outfit({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  // 800 is for the deal posters' brush stroke titles and prices.
+  weight: ["500", "600", "700", "800"],
 });
 
 /**

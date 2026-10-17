@@ -58,6 +58,8 @@
   --color-cream: var(--cream);
   --color-hero-ink: var(--hero-ink);
   --color-hero-ink-soft: var(--hero-ink-soft);
+  --color-zest: var(--zest);
+  --color-zest-ink: var(--zest-ink);
 }
 
 :root {
@@ -121,6 +123,12 @@
   --hero-ink: oklch(0.975 0.032 88);
   --hero-ink-soft: oklch(0.93 0.042 82);
 
+  /* Deal posters: the bright lime of the printed flyers, and the near black
+     forest green that sits on it. Kept to the deals so the rest of the site
+     stays in its softer garden palette. */
+  --zest: oklch(0.88 0.19 125);
+  --zest-ink: oklch(0.24 0.05 155);
+
   /* Elevation ramp. Each level pairs a wide ambient shadow with a tight
      contact shadow and a light top edge, which is what makes a flat card read
      as a physical object resting on a table. */
@@ -176,6 +184,8 @@
   --cream: oklch(0.26 0.024 150);
   --hero-ink: oklch(0.965 0.035 88);
   --hero-ink-soft: oklch(0.9 0.05 80);
+  --zest: oklch(0.86 0.18 125);
+  --zest-ink: oklch(0.2 0.04 155);
 
   --edge-light: inset 0 1px 0 oklch(1 0 0 / 0.09);
   --shadow-rest: 0 1px 2px oklch(0 0 0 / 0.4), 0 6px 16px -6px oklch(0 0 0 / 0.55);
@@ -374,6 +384,16 @@
     to left,
     transparent,
     color-mix(in oklch, var(--leaf) 55%, transparent)
+  );
+}
+
+/* A dry brush stroke behind a deal title or price, like the printed posters.
+   Ragged on every side so it reads as painted rather than as a rounded box. */
+.brush {
+  clip-path: polygon(
+    1% 14%, 9% 2%, 24% 7%, 41% 0%, 58% 6%, 76% 1%, 93% 5%, 100% 18%,
+    98% 46%, 100% 80%, 94% 97%, 77% 93%, 60% 100%, 42% 94%, 25% 100%,
+    8% 95%, 0% 84%, 2% 50%
   );
 }
 
