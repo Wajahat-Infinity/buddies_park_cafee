@@ -2,9 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { Minus, Plus, UtensilsCrossed } from "lucide-react";
+import { UtensilsCrossed } from "lucide-react";
 import {
-  AnimatePresence,
   motion,
   useMotionTemplate,
   useMotionValue,
@@ -14,8 +13,9 @@ import {
 } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AddToOrder } from "@/components/public/AddToOrder";
+import { useFlyToCart } from "@/components/motion/FlyToCart";
 import { cn } from "@/lib/utils";
 import { clean, formatPrice } from "@/lib/format";
 import { useCart } from "@/context/CartContext";
@@ -63,8 +63,9 @@ export function MenuItemCard({
   className?: string;
 }) {
   const [loaded, setLoaded] = useState(false);
-  const { addItem, increment, decrement, quantityOf } = useCart();
-  const quantity = quantityOf(item.id);
+  const { addItem } = useCart();
+  const { fly } = useFlyToCart();
+  const photoRef = useRef<HTMLDivElement>(null);
   const description = clean(item.description);
   const imageUrl = clean(item.image_url);
   const tags = (item.tags ?? []).filter(Boolean);
@@ -122,7 +123,10 @@ export function MenuItemCard({
         )}
       >
         <div className="preserve-3d relative">
-          <div className="bg-muted sheen relative aspect-4/3 w-full overflow-hidden rounded-t-2xl">
+          <div
+            ref={photoRef}
+            className="bg-muted sheen relative aspect-4/3 w-full overflow-hidden rounded-t-2xl"
+          >
             {imageUrl ? (
               <>
                 {loaded ? null : (
@@ -201,70 +205,15 @@ export function MenuItemCard({
           ) : null}
 
           <div className="mt-auto pt-1" style={{ transform: "translateZ(14px)" }}>
-            <AnimatePresence mode="wait" initial={false}>
-              {quantity > 0 && !soldOut ? (
-                <motion.div
-                  key="stepper"
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.96 }}
-                  transition={{ duration: 0.18, ease: "easeOut" }}
-                  className="bg-secondary/60 flex items-center justify-between gap-2 rounded-full border p-1"
-                >
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="size-8 rounded-full transition-transform active:scale-90"
-                    onClick={() => decrement(item.id)}
-                    aria-label={`Remove one ${item.name}`}
-                  >
-                    <Minus className="size-4" />
-                  </Button>
-                  <span
-                    aria-live="polite"
-                    className="min-w-6 text-center text-sm font-semibold tabular-nums"
-                  >
-                    {quantity}
-                  </span>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="size-8 rounded-full transition-transform active:scale-90"
-                    onClick={() => increment(item.id)}
-                    aria-label={`Add one more ${item.name}`}
-                  >
-                    <Plus className="size-4" />
-                  </Button>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="add"
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.96 }}
-                  transition={{ duration: 0.18, ease: "easeOut" }}
-                >
-                  <Button
-                    size="lg"
-                    className={cn(
-                      "h-10 w-full rounded-full",
-                      !soldOut && "press-3d"
-                    )}
-                    disabled={soldOut}
-                    onClick={() => addItem(item)}
-                  >
-                    {soldOut ? (
-                      "Unavailable"
-                    ) : (
-                      <>
-                        <Plus className="size-4" />
-                        Add to order
-                      </>
-                    )}
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <AddToOrder
+              id={item.id}
+              name={item.name}
+              soldOut={soldOut}
+              onAdd={() => {
+                addItem(item);
+                fly(photoRef.current);
+              }}
+            />
           </div>
         </div>
 

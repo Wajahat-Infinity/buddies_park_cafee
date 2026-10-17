@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useAnimate,
+  useReducedMotion,
+} from "framer-motion";
 import { ShoppingBag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/public/CartDrawer";
+import { useFlyToCart } from "@/components/motion/FlyToCart";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/format";
 import type { SiteSettings } from "@/lib/types";
@@ -20,6 +26,18 @@ export function CartBar({ settings }: { settings: SiteSettings }) {
   const currency = settings.currency;
   const reduceMotion = useReducedMotion();
   const visible = itemCount > 0;
+  const { landings } = useFlyToCart();
+  const [bar, animate] = useAnimate<HTMLDivElement>();
+
+  // The bar catches each item thrown into it with a small bounce.
+  useEffect(() => {
+    if (landings === 0 || !bar.current) return;
+    animate(
+      bar.current,
+      { scale: [1, 1.06, 0.98, 1] },
+      { duration: 0.45, ease: "easeOut" }
+    );
+  }, [landings, animate, bar]);
 
   return (
     <>
@@ -36,6 +54,8 @@ export function CartBar({ settings }: { settings: SiteSettings }) {
             className="fixed inset-x-0 bottom-0 z-40 p-3"
           >
             <div
+              ref={bar}
+              id="cart-bar"
               data-garden-motion
               className="bg-card/85 mx-auto max-w-md rounded-full border p-1.5 backdrop-blur-md"
               style={{ animation: "halo 3.4s ease-out infinite" }}

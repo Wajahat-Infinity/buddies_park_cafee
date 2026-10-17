@@ -34,11 +34,12 @@ export function FeaturedCarousel({
       </FadeIn>
 
       <FadeIn delay={0.1}>
-        <Carousel opts={{ align: "start", loop: false }} className="mt-8">
+        <Carousel opts={{ align: "start", loop: false }} className="-mb-8">
           {/* Vertical padding on the track, not the items: a card lifts and
               casts a shadow on hover, and without the room it clips against
-              the carousel's own overflow. */}
-          <CarouselContent className="-ml-3 py-4">
+              the carousel's own overflow. The negative margin gives the room
+              back to the layout. */}
+          <CarouselContent className="-ml-3 py-12">
             {items.map((item) => (
               <CarouselItem
                 key={item.id}

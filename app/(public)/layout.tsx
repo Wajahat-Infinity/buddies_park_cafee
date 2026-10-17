@@ -6,6 +6,7 @@ import { CartBar } from "@/components/public/CartBar";
 import { Footer } from "@/components/public/Footer";
 import { GardenBackdrop } from "@/components/public/GardenBackdrop";
 import { Header } from "@/components/public/Header";
+import { FlyToCartProvider } from "@/components/motion/FlyToCart";
 import { CartProvider } from "@/context/CartContext";
 import { getSettings } from "@/lib/queries";
 
@@ -22,23 +23,25 @@ export default async function PublicLayout({
 
   return (
     <CartProvider>
-      <GardenBackdrop />
+      <FlyToCartProvider>
+        <GardenBackdrop />
 
-      <div id="top" className="relative flex min-h-dvh flex-col">
-        <AnnouncementBar settings={settings} />
-        <Header settings={settings} />
+        <div id="top" className="relative flex min-h-dvh flex-col">
+          <AnnouncementBar settings={settings} />
+          <Header settings={settings} />
 
-        <main className="flex-1">
-          {children}
-          <CartBar settings={settings} />
-        </main>
+          <main className="flex-1">
+            {children}
+            <CartBar settings={settings} />
+          </main>
 
-        <Footer settings={settings} />
-      </div>
+          <Footer settings={settings} />
+        </div>
 
-      {/* Page views for the public site only, so the owner's own visits to
-          the admin panel never inflate the numbers. */}
-      <Analytics />
+        {/* Page views for the public site only, so the owner's own visits to
+            the admin panel never inflate the numbers. */}
+        <Analytics />
+      </FlyToCartProvider>
     </CartProvider>
   );
 }

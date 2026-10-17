@@ -76,7 +76,7 @@ export function Header({ settings }: { settings: SiteSettings }) {
           <span className="min-w-0">
             <span
               className={cn(
-                "block truncate text-base leading-tight font-semibold sm:text-lg",
+                "block text-sm leading-tight font-semibold max-sm:line-clamp-2 sm:truncate sm:text-lg",
                 overHero && "drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
               )}
             >
@@ -120,7 +120,7 @@ export function Header({ settings }: { settings: SiteSettings }) {
               variant="ghost"
               size="icon"
               aria-label="Call us"
-              className="text-inherit hover:bg-white/15 hover:text-inherit"
+              className="hidden text-inherit hover:bg-white/15 hover:text-inherit sm:inline-flex"
             >
               <a href={call}>
                 <Phone className="size-5" />

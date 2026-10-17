@@ -40,8 +40,11 @@ export function DealsSection({
       </FadeIn>
 
       <FadeIn delay={0.1}>
-        <Carousel opts={{ align: "start", loop: false }} className="mt-8">
-          <CarouselContent className="-ml-4 py-4">
+        {/* Deep padding on the track so the card shadows fade out fully instead
+            of being sliced off by the carousel's overflow; the negative margin
+            gives that room back to the layout. */}
+        <Carousel opts={{ align: "start", loop: false }} className="-mb-8">
+          <CarouselContent className="-ml-4 py-12">
             {deals.map((deal) => (
               <CarouselItem
                 key={deal.id}

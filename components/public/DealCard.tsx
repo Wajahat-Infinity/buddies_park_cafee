@@ -1,12 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Minus, Plus, UtensilsCrossed } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useFlyToCart } from "@/components/motion/FlyToCart";
 import { cn } from "@/lib/utils";
 import { clean, formatPrice } from "@/lib/format";
 import { useCart } from "@/context/CartContext";
@@ -42,6 +43,8 @@ export function DealCard({
   const [loaded, setLoaded] = useState(false);
   const { addItem, increment, decrement, quantityOf } = useCart();
   const quantity = quantityOf(deal.id);
+  const { fly } = useFlyToCart();
+  const photoRef = useRef<HTMLDivElement>(null);
   const imageUrl = clean(deal.image_url);
   const badge = clean(deal.badge);
   const [head, tail] = splitName(deal.name);
@@ -55,6 +58,7 @@ export function DealCard({
       image_url: deal.image_url,
       is_available: deal.is_active,
     });
+    fly(photoRef.current);
   }
 
   return (
@@ -66,7 +70,9 @@ export function DealCard({
     >
       <div className="flex h-full flex-col @2xl:flex-row-reverse">
         {/* Photo */}
-        <div className="sheen relative aspect-16/10 w-full shrink-0 overflow-hidden @2xl:aspect-auto @2xl:min-h-72 @2xl:w-[56%]">
+        <div
+          ref={photoRef}
+          className="sheen relative aspect-16/10 w-full shrink-0 overflow-hidden @2xl:aspect-auto @2xl:min-h-72 @2xl:w-[56%]">
           {imageUrl ? (
             <>
               {loaded ? null : (

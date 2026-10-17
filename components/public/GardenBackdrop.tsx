@@ -32,9 +32,10 @@ export function GardenBackdrop() {
     >
       {/* Sunlight pooling in from the top left, cooling into foliage on the
           right. Two blurred orbs breathing out of sync read as light moving
-          behind leaves. */}
+          behind leaves. Still on phones: see `data-garden-bloom` in globals. */}
       <div
         data-garden-motion
+        data-garden-bloom
         className="absolute -top-40 -left-32 size-[38rem] rounded-full blur-3xl"
         style={{
           background:
@@ -44,6 +45,7 @@ export function GardenBackdrop() {
       />
       <div
         data-garden-motion
+        data-garden-bloom
         className="absolute -top-24 -right-40 size-[32rem] rounded-full blur-3xl"
         style={{
           background:
@@ -53,6 +55,7 @@ export function GardenBackdrop() {
       />
       <div
         data-garden-motion
+        data-garden-bloom
         className="absolute -bottom-48 left-1/4 size-[42rem] rounded-full blur-3xl"
         style={{
           background:

@@ -500,6 +500,15 @@
   }
 }
 
+/* The light orbs are huge blurred layers; breathing them on a phone means
+   re-rasterising that blur every frame, which stutters scrolling on cheaper
+   Android devices. Phones keep the light, just not the movement. */
+@media (max-width: 639.98px) {
+  [data-garden-bloom] {
+    animation: none !important;
+  }
+}
+
 /* Motion is decoration here, so anyone asking for less simply loses it — the
    global reduce block above collapses durations, and these run infinitely, so
    they are switched off outright rather than left flickering at 0.01ms. */
