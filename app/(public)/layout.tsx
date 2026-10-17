@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 
 import { AnnouncementBar } from "@/components/public/AnnouncementBar";
 import { CartBar } from "@/components/public/CartBar";
@@ -34,6 +35,10 @@ export default async function PublicLayout({
 
         <Footer settings={settings} />
       </div>
+
+      {/* Page views for the public site only, so the owner's own visits to
+          the admin panel never inflate the numbers. */}
+      <Analytics />
     </CartProvider>
   );
 }
