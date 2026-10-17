@@ -27,7 +27,7 @@ export default async function Home() {
       <HomeHero
         settings={settings}
         deals={deals}
-        slide={slides[0] ?? null}
+        carousel={slides}
         featured={featured}
       />
       <DealsTicker deals={deals} currency={settings.currency} />

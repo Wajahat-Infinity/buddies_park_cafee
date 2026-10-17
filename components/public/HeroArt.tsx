@@ -10,8 +10,12 @@ export type HeroSlide = {
   id: string;
   image: string;
   alt: string;
-  /** Deal name and price for the lime sticker; omitted for a plain photo. */
-  sticker?: { name: string; price: string };
+  /**
+   * The lime sticker: a small line on top and a big one below. A deal sets
+   * its price big (`size: "price"`); a carousel photo sets its title in a
+   * smaller size so a whole phrase still fits. Omitted for a plain photo.
+   */
+  sticker?: { top?: string; main: string; size: "price" | "text" };
 };
 
 /** Long enough to read a deal name and price before the next one arrives. */
@@ -85,7 +89,10 @@ export function HeroArt({
         {current.sticker ? (
           <motion.div
             key={current.id}
-            className="brush bg-lime text-park absolute -right-1 -bottom-6 px-4 pt-2 pb-3 sm:-right-3"
+            className={cn(
+              "brush bg-lime text-park absolute -right-1 -bottom-6 px-4 pt-2 pb-3 sm:-right-3",
+              current.sticker.size === "text" && "max-w-[85%]"
+            )}
             initial={
               reduceMotion
                 ? { opacity: 0, rotate: 4 }
@@ -95,11 +102,20 @@ export function HeroArt({
             exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.85, transition: { duration: 0.15 } }}
             transition={{ type: "spring", stiffness: 420, damping: 16 }}
           >
-            <p className="font-poster text-sm leading-none font-extrabold tracking-wider uppercase">
-              {current.sticker.name}
-            </p>
-            <p className="font-poster text-5xl leading-none font-black tabular-nums">
-              {current.sticker.price}
+            {current.sticker.top ? (
+              <p className="font-poster text-sm leading-none font-extrabold tracking-wider uppercase">
+                {current.sticker.top}
+              </p>
+            ) : null}
+            <p
+              className={cn(
+                "font-poster leading-none font-black uppercase",
+                current.sticker.size === "price"
+                  ? "text-5xl tabular-nums"
+                  : "mt-0.5 text-3xl text-balance"
+              )}
+            >
+              {current.sticker.main}
             </p>
           </motion.div>
         ) : null}

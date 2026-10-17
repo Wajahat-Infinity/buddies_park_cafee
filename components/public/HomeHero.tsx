@@ -27,18 +27,18 @@ function shortAddress(address: string) {
 /**
  * The home page opener: what the cafe is, how to order, and the strongest
  * reasons to order today. The photo cycles through every active deal with a
- * photo, in the admin's deal order; with no deals it shows the first carousel
- * slide, then a featured item.
+ * photo, in the admin's deal order. With no deals it cycles through the
+ * carousel slides instead, and with neither it shows a featured item.
  */
 export function HomeHero({
   settings,
   deals,
-  slide,
+  carousel,
   featured,
 }: {
   settings: SiteSettings;
   deals: Deal[];
-  slide: CarouselSlide | null;
+  carousel: CarouselSlide[];
   featured: MenuItem[];
 }) {
   const headline = clean(settings.tagline) ?? settings.cafe_name;
@@ -60,21 +60,44 @@ export function HomeHero({
             image,
             alt: deal.name,
             sticker: {
-              name: deal.name,
-              price: formatPrice(deal.price, settings.currency),
+              top: deal.name,
+              main: formatPrice(deal.price, settings.currency),
+              size: "price" as const,
             },
           },
         ]
       : [];
   });
-  const fallback =
-    dealSlides.length > 0 ? null : clean(slide?.image_url) ?? extras.shift() ?? null;
+  // The owner's own photos: a new item, an event, the park seating. The
+  // title goes on the sticker, the subtitle above it.
+  const carouselSlides: HeroSlide[] = carousel.flatMap((slide) => {
+    const image = clean(slide.image_url);
+    const title = clean(slide.title);
+    const subtitle = clean(slide.subtitle);
+    return image
+      ? [
+          {
+            id: slide.id,
+            image,
+            alt: title ?? "",
+            sticker: title
+              ? { top: subtitle ?? undefined, main: title, size: "text" as const }
+              : undefined,
+          },
+        ]
+      : [];
+  });
+
+  // Last resort, a featured item's photo, taken out of the small round
+  // photos so it is not shown twice.
   const slides: HeroSlide[] =
     dealSlides.length > 0
       ? dealSlides
-      : fallback
-        ? [{ id: "hero", image: fallback, alt: clean(slide?.title) ?? "" }]
-        : [];
+      : carouselSlides.length > 0
+        ? carouselSlides
+        : extras.length > 0
+          ? [{ id: "hero", image: extras.shift()!, alt: "" }]
+          : [];
 
   return (
     <section className="bg-park overflow-hidden text-white">
