@@ -231,8 +231,8 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    3D Cozy Garden Cafe
-   Everything below is scene dressing for the public site: dappled sunlight on
-   the page, foliage drifting behind the content, and surfaces that behave like
+   Everything below is scene dressing for the public site: warm sunlight on
+   the page, and surfaces that behave like
    objects on a table rather than rectangles on a screen. The admin panel opts
    out simply by not using any of these classes.
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -428,48 +428,6 @@
   }
 }
 
-/* One leaf falling: down the page, across on a breeze, tumbling as it goes. */
-@keyframes leaf-fall {
-  0% {
-    transform: translate3d(0, -12vh, 0) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: var(--leaf-opacity, 0.5);
-  }
-  90% {
-    opacity: var(--leaf-opacity, 0.5);
-  }
-  100% {
-    transform: translate3d(var(--leaf-drift, 60px), 112vh, 0) rotate(420deg);
-    opacity: 0;
-  }
-}
-
-/* Canopy shifting in the wind. */
-@keyframes sway {
-  0%,
-  100% {
-    transform: rotate(-2.5deg) translateX(-6px);
-  }
-  50% {
-    transform: rotate(2.5deg) translateX(6px);
-  }
-}
-
-/* Light pooling and fading, like sun moving behind clouds. */
-@keyframes bloom {
-  0%,
-  100% {
-    opacity: 0.55;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.9;
-    transform: scale(1.12);
-  }
-}
-
 /* Steam off a fresh cup. */
 @keyframes steam {
   0% {
@@ -497,15 +455,6 @@
     box-shadow:
       var(--shadow-float),
       0 0 0 10px color-mix(in oklch, var(--primary) 0%, transparent);
-  }
-}
-
-/* The light orbs are huge blurred layers; breathing them on a phone means
-   re-rasterising that blur every frame, which stutters scrolling on cheaper
-   Android devices. Phones keep the light, just not the movement. */
-@media (max-width: 639.98px) {
-  [data-garden-bloom] {
-    animation: none !important;
   }
 }
 
