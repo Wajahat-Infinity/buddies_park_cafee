@@ -20,9 +20,9 @@ export default async function Home() {
 
   return (
     <>
-      <PageEntrance>
-        <HeroCarousel slides={slides} settings={settings} />
-      </PageEntrance>
+      {/* No entrance animation: the hero is the first thing on screen and
+          should simply be there, not slide into place. */}
+      <HeroCarousel slides={slides} settings={settings} />
       {/* Deals first: they are the strongest reason to order today. */}
       <PageEntrance delay={0.08}>
         <DealsSection deals={deals} currency={settings.currency} />

@@ -403,11 +403,6 @@
   border-bottom-right-radius: 38% 9%;
 }
 
-/* Slow drift applied to the hero photograph, so a still image breathes. */
-.ken-burns {
-  animation: ken-burns 18s ease-in-out infinite alternate;
-}
-
 .float-slow {
   animation: bob 6s ease-in-out infinite;
 }
@@ -420,15 +415,6 @@
   }
   to {
     background-position: -30% 0;
-  }
-}
-
-@keyframes ken-burns {
-  from {
-    transform: scale(1) translate3d(0, 0, 0);
-  }
-  to {
-    transform: scale(1.09) translate3d(-1.5%, -1%, 0);
   }
 }
 
@@ -499,19 +485,6 @@
   }
 }
 
-/* The scroll cue nudging downward. */
-@keyframes nudge-down {
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.75;
-  }
-  50% {
-    transform: translateY(7px);
-    opacity: 1;
-  }
-}
-
 /* A soft halo breathing around the cart bar so it stays noticeable. */
 @keyframes halo {
   0%,
@@ -531,7 +504,6 @@
    global reduce block above collapses durations, and these run infinitely, so
    they are switched off outright rather than left flickering at 0.01ms. */
 @media (prefers-reduced-motion: reduce) {
-  .ken-burns,
   .float-slow,
   [data-garden-motion] {
     animation: none !important;

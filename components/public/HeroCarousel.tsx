@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import Autoplay from "embla-carousel-autoplay";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 import {
@@ -18,8 +17,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { clean } from "@/lib/format";
 import type { CarouselSlide, SiteSettings } from "@/lib/types";
-
-const AUTOPLAY_DELAY = 5000;
 
 /**
  * Shared frame so the carousel and the fallback occupy identical space.
@@ -46,13 +43,11 @@ export function HeroCarousel({
   slides: CarouselSlide[];
   settings: SiteSettings;
 }) {
-  const reduceMotion = useReducedMotion();
-
   if (slides.length === 0) {
     return <HeroFallback settings={settings} />;
   }
 
-  return <SlideCarousel slides={slides} reduceMotion={!!reduceMotion} />;
+  return <SlideCarousel slides={slides} />;
 }
 
 /**
@@ -146,30 +141,17 @@ function SteamingCup() {
   );
 }
 
-function SlideCarousel({
-  slides,
-  reduceMotion,
-}: {
-  slides: CarouselSlide[];
-  reduceMotion: boolean;
-}) {
+/**
+ * The slideshow is deliberately still: no autoplay, no zoom on the photo and
+ * no tilting caption. The owner found the constant movement looked shaky, so
+ * a slide only changes when the visitor swipes or taps a dot.
+ */
+function SlideCarousel({ slides }: { slides: CarouselSlide[] }) {
   const [api, setApi] = useState<CarouselApi>();
   const [selected, setSelected] = useState(0);
 
-  // A single slide should not loop, autoplay or show dots.
+  // A single slide should not loop or show dots.
   const multiple = slides.length > 1;
-  // Lazy state rather than a ref: the plugin instance must stay stable across
-  // renders and is read during render when it is handed to the carousel.
-  const [autoplay] = useState(() =>
-    Autoplay({
-      delay: AUTOPLAY_DELAY,
-      // Keep rotating: pausing on hover left the hero frozen on desktop,
-      // where the pointer sits over it most of the time.
-      stopOnInteraction: false,
-      stopOnMouseEnter: false,
-      playOnInit: true,
-    })
-  );
 
   useEffect(() => {
     if (!api) return;
@@ -199,18 +181,12 @@ function SlideCarousel({
       <Carousel
         setApi={setApi}
         opts={{ loop: multiple, align: "start" }}
-        plugins={multiple && !reduceMotion ? [autoplay] : []}
         className={cn(CAROUSEL_FRAME, "arch-bottom")}
       >
         <CarouselContent className="ml-0 h-full">
           {slides.map((slide, index) => (
             <CarouselItem key={slide.id} className="h-full basis-full pl-0">
-              <SlideImage
-                slide={slide}
-                priority={index === 0}
-                active={index === selected}
-                drift={!reduceMotion}
-              />
+              <SlideImage slide={slide} priority={index === 0} />
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -220,22 +196,14 @@ function SlideCarousel({
           carousel's own overflow so they never clip. */}
       <div className="scene pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
         <AnimatePresence mode="wait">
+          {/* A plain cross fade when the slide changes: nothing moves. */}
           <motion.div
             key={active?.id ?? "caption"}
-            initial={
-              reduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, y: 28, rotateX: -22, filter: "blur(6px)" }
-            }
-            animate={
-              reduceMotion
-                ? { opacity: 1 }
-                : { opacity: 1, y: 0, rotateX: 0, filter: "blur(0px)" }
-            }
-            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -16, filter: "blur(4px)" }}
-            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             className="text-hero-ink max-w-xl"
-            style={{ transformStyle: "preserve-3d" }}
           >
             {title ? (
               <h1
@@ -259,12 +227,7 @@ function SlideCarousel({
           </motion.div>
         </AnimatePresence>
 
-        <motion.div
-          initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.35, ease: "easeOut" }}
-          className="pointer-events-auto mt-7"
-        >
+        <div className="pointer-events-auto mt-7">
           <Button
             asChild
             size="lg"
@@ -272,15 +235,12 @@ function SlideCarousel({
           >
             <Link href="/menu">View menu</Link>
           </Button>
-        </motion.div>
+        </div>
 
-        {/* A cue that there is more below the fold — it bobs rather than
-            blinks, which is easier to ignore once you have seen it. */}
+        {/* A still cue that there is more below the fold. */}
         <ChevronDown
           aria-hidden
-          data-garden-motion
           className="mt-8 size-6 text-white/80 drop-shadow"
-          style={{ animation: "nudge-down 2.4s ease-in-out infinite" }}
         />
 
         {multiple ? (
@@ -311,13 +271,9 @@ function SlideCarousel({
 function SlideImage({
   slide,
   priority,
-  active,
-  drift,
 }: {
   slide: CarouselSlide;
   priority: boolean;
-  active: boolean;
-  drift: boolean;
 }) {
   // `settled` covers both outcomes: a failed image must stop the skeleton too,
   // otherwise a blocked or missing file leaves a grey box forever.
@@ -329,29 +285,22 @@ function SlideImage({
     <div className="relative size-full overflow-hidden bg-neutral-900">
       {settled ? null : <Skeleton className="absolute inset-0 rounded-none" />}
 
-      {/* The slow push keyed to `active` restarts each time the slide comes
-          around, so a still photograph never sits perfectly dead. */}
-      <div
-        key={active ? "drifting" : "still"}
-        className={cn("size-full", drift && active && loaded && "ken-burns")}
-      >
-        <Image
-          src={slide.image_url}
-          alt={clean(slide.title) ?? ""}
-          fill
-          priority={priority}
-          sizes="100vw"
-          className={cn(
-            "object-cover transition-opacity duration-700",
-            loaded ? "opacity-100" : "opacity-0"
-          )}
-          onLoad={() => setSettled(true)}
-          onError={() => {
-            setFailed(true);
-            setSettled(true);
-          }}
-        />
-      </div>
+      <Image
+        src={slide.image_url}
+        alt={clean(slide.title) ?? ""}
+        fill
+        priority={priority}
+        sizes="100vw"
+        className={cn(
+          "object-cover transition-opacity duration-700",
+          loaded ? "opacity-100" : "opacity-0"
+        )}
+        onLoad={() => setSettled(true)}
+        onError={() => {
+          setFailed(true);
+          setSettled(true);
+        }}
+      />
 
       {/* Layered scrim rather than a flat wash: darkest at the very top so the
           transparent header stays legible, warm and deep at the foot so the
