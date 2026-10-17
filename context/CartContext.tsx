@@ -42,12 +42,17 @@ type CartValue = {
   removeItem: (id: string) => void;
   clearCart: () => void;
   quantityOf: (id: string) => number;
+  /** Whether the order panel is showing. Shared, since the header, the
+   *  bottom tabs and the order bar can all open it. */
+  cartOpen: boolean;
+  setCartOpen: (open: boolean) => void;
 };
 
 const CartContext = createContext<CartValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
+  const [cartOpen, setCartOpen] = useState(false);
 
   const addItem = useCallback((item: Orderable) => {
     if (!item.is_available) return;
@@ -116,8 +121,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       clearCart,
       quantityOf: (id: string) =>
         lines.find((line) => line.id === id)?.quantity ?? 0,
+      cartOpen,
+      setCartOpen,
     };
-  }, [lines, addItem, increment, decrement, removeItem, clearCart]);
+  }, [lines, addItem, increment, decrement, removeItem, clearCart, cartOpen]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

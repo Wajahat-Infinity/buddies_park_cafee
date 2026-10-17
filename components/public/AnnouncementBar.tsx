@@ -1,34 +1,20 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
-
 import { clean } from "@/lib/format";
 import type { SiteSettings } from "@/lib/types";
 
 /**
- * Thin bar above the header. Renders nothing at all unless the owner has both
- * written an announcement and switched it on.
+ * Thin bar above everything else. Renders nothing at all unless the owner has
+ * both written an announcement and switched it on.
  */
 export function AnnouncementBar({ settings }: { settings: SiteSettings }) {
-  const reduceMotion = useReducedMotion();
   const text = clean(settings.announcement_text);
 
   if (!settings.announcement_active || !text) return null;
 
   return (
-    <motion.div
-      initial={reduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
-      animate={reduceMotion ? { opacity: 1 } : { height: "auto", opacity: 1 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-      className="text-primary-foreground relative overflow-hidden"
-      style={{
-        backgroundImage:
-          "linear-gradient(100deg, var(--leaf-deep), var(--primary) 45%, color-mix(in oklch, var(--clay) 60%, var(--primary)) 100%)",
-      }}
-    >
-      <p className="mx-auto max-w-5xl px-4 py-2 text-center text-xs font-medium tracking-wide sm:text-sm">
+    <div className="bg-park-2 text-white">
+      <p className="mx-auto max-w-6xl px-4 py-2 text-center text-xs font-semibold sm:text-sm">
         {text}
       </p>
-    </motion.div>
+    </div>
   );
 }

@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   AnimatePresence,
   motion,
   useAnimate,
   useReducedMotion,
 } from "framer-motion";
-import { ShoppingBag } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/public/CartDrawer";
 import { useFlyToCart } from "@/components/motion/FlyToCart";
 import { useCart } from "@/context/CartContext";
@@ -17,17 +16,17 @@ import { formatPrice } from "@/lib/format";
 import type { SiteSettings } from "@/lib/types";
 
 /**
- * Sticky bottom bar. Slides up with the first item and away with the last, and
- * is fully removed from the tree (so it cannot be tapped) when empty.
+ * The lime order bar. Slides up with the first item and away with the last;
+ * on phones it rides just above the bottom tab bar. Fully removed from the
+ * tree when empty, so it can never be tapped by accident.
  */
 export function CartBar({ settings }: { settings: SiteSettings }) {
-  const [open, setOpen] = useState(false);
-  const { itemCount, total } = useCart();
+  const { itemCount, total, cartOpen, setCartOpen } = useCart();
   const currency = settings.currency;
   const reduceMotion = useReducedMotion();
   const visible = itemCount > 0;
   const { landings } = useFlyToCart();
-  const [bar, animate] = useAnimate<HTMLDivElement>();
+  const [bar, animate] = useAnimate<HTMLButtonElement>();
 
   // The bar catches each item thrown into it with a small bounce.
   useEffect(() => {
@@ -41,52 +40,48 @@ export function CartBar({ settings }: { settings: SiteSettings }) {
 
   return (
     <>
-      {/* Keeps the last of the page clear of the fixed bar. */}
-      <div className={visible ? "h-24" : "h-0"} aria-hidden />
+      {/* Keeps the end of the page clear of the fixed bar. */}
+      <div className={visible ? "h-20" : "h-0"} aria-hidden />
 
       <AnimatePresence>
         {visible ? (
           <motion.div
-            initial={reduceMotion ? { opacity: 0 } : { y: "110%" }}
+            initial={reduceMotion ? { opacity: 0 } : { y: "160%" }}
             animate={reduceMotion ? { opacity: 1 } : { y: 0 }}
-            exit={reduceMotion ? { opacity: 0 } : { y: "110%" }}
+            exit={reduceMotion ? { opacity: 0 } : { y: "160%" }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed inset-x-0 bottom-0 z-40 p-3"
+            className="fixed inset-x-3 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-40 md:bottom-5"
           >
-            <div
+            <button
               ref={bar}
               id="cart-bar"
-              data-garden-motion
-              className="bg-card/85 mx-auto max-w-md rounded-full border p-1.5 backdrop-blur-md"
-              style={{ animation: "halo 3.4s ease-out infinite" }}
+              type="button"
+              onClick={() => setCartOpen(true)}
+              className="bg-lime text-park mx-auto flex h-13 w-full max-w-md items-center justify-between gap-3 rounded-full pr-5 pl-5 shadow-[0_14px_30px_-12px_rgb(12_42_27/0.7)]"
             >
-              <Button
-                size="lg"
-                className="h-11 w-full justify-between rounded-full px-5 text-base"
-                onClick={() => setOpen(true)}
-              >
-                <span className="flex items-center gap-2">
-                  <ShoppingBag className="size-4" />
-                  <motion.span
-                    key={itemCount}
-                    initial={reduceMotion ? false : { scale: 1.35 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.22, ease: "easeOut" }}
-                    className="tabular-nums"
-                  >
-                    {itemCount} {itemCount === 1 ? "item" : "items"}
-                  </motion.span>
-                </span>
-                <span className="tabular-nums">
-                  {formatPrice(total, currency)}
-                </span>
-              </Button>
-            </div>
+              <span className="flex items-center gap-2 text-sm font-bold">
+                <motion.span
+                  key={itemCount}
+                  initial={reduceMotion ? false : { scale: 1.35 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.22, ease: "easeOut" }}
+                  className="tabular-nums"
+                >
+                  {itemCount} {itemCount === 1 ? "item" : "items"}
+                </motion.span>
+                <span className="opacity-60">·</span>
+                View order
+                <ArrowRight className="size-4" />
+              </span>
+              <span className="font-poster text-2xl leading-none font-black tabular-nums">
+                {formatPrice(total, currency)}
+              </span>
+            </button>
           </motion.div>
         ) : null}
       </AnimatePresence>
 
-      <CartDrawer open={open} onOpenChange={setOpen} settings={settings} />
+      <CartDrawer open={cartOpen} onOpenChange={setCartOpen} settings={settings} />
     </>
   );
 }

@@ -21,45 +21,38 @@ export function Footer({ settings }: { settings: SiteSettings }) {
   const facebook = externalHref(settings.facebook_url);
   const year = new Date().getFullYear();
 
-  return (
-    <footer className="border-leaf/15 relative mt-16 border-t">
-      {/* The page settles into deeper foliage at the very bottom. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background:
-            "linear-gradient(to bottom, transparent, color-mix(in oklch, var(--leaf) 12%, transparent))",
-        }}
-      />
+  const social =
+    "bg-park-2 grid size-10 place-items-center rounded-full text-white/80 transition-colors hover:bg-lime hover:text-park";
 
-      <div className="mx-auto grid max-w-5xl gap-8 px-4 py-12 sm:grid-cols-2">
-        <div className="flex items-start gap-3">
+  return (
+    <footer className="bg-park text-white">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-2">
+        <div className="flex items-start gap-4">
           {logoUrl ? (
             <Image
               src={logoUrl}
               alt={settings.cafe_name}
-              width={48}
-              height={48}
-              className="shadow-rest ring-leaf/20 size-12 shrink-0 rounded-full object-cover ring-2"
+              width={64}
+              height={64}
+              className="ring-lime size-16 shrink-0 rounded-full object-cover ring-2"
             />
           ) : null}
           <div>
-            <p className="font-heading text-lg font-semibold">
+            <p className="font-poster text-3xl leading-none font-black uppercase">
               {settings.cafe_name}
             </p>
             {tagline ? (
-              <p className="text-muted-foreground mt-1 text-sm">{tagline}</p>
+              <p className="text-lime mt-2 text-sm font-semibold">{tagline}</p>
             ) : null}
             {instagram || facebook ? (
-              <div className="mt-3 flex gap-3">
+              <div className="mt-4 flex gap-2">
                 {instagram ? (
                   <a
                     href={instagram}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Instagram"
-                    className="bg-card shadow-rest text-muted-foreground hover:text-clay flex size-9 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-1"
+                    className={social}
                   >
                     <InstagramIcon className="size-5" />
                   </a>
@@ -70,7 +63,7 @@ export function Footer({ settings }: { settings: SiteSettings }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Facebook"
-                    className="bg-card shadow-rest text-muted-foreground hover:text-clay flex size-9 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-1"
+                    className={social}
                   >
                     <FacebookIcon className="size-5" />
                   </a>
@@ -80,35 +73,35 @@ export function Footer({ settings }: { settings: SiteSettings }) {
           </div>
         </div>
 
-        <ul className="space-y-3 text-sm">
+        <ul className="grid content-start gap-3 text-sm text-white/80">
           {address ? (
-            <li className="flex gap-2.5">
-              <MapPin className="text-clay mt-0.5 size-4 shrink-0" />
+            <li className="flex gap-3">
+              <MapPin className="text-lime mt-0.5 size-4 shrink-0" />
               <span>{address}</span>
             </li>
           ) : null}
           {hours ? (
-            <li className="flex gap-2.5">
-              <Clock className="text-clay mt-0.5 size-4 shrink-0" />
+            <li className="flex gap-3">
+              <Clock className="text-lime mt-0.5 size-4 shrink-0" />
               <span>{hours}</span>
             </li>
           ) : null}
           {phone ? (
-            <li className="flex gap-2.5">
-              <Phone className="text-clay mt-0.5 size-4 shrink-0" />
+            <li className="flex gap-3">
+              <Phone className="text-lime mt-0.5 size-4 shrink-0" />
               {call ? (
-                <a href={call} className="hover:underline">
+                <a href={call} className="tabular-nums hover:underline">
                   {phone}
                 </a>
               ) : (
-                <span>{phone}</span>
+                <span className="tabular-nums">{phone}</span>
               )}
             </li>
           ) : null}
         </ul>
       </div>
 
-      <div className="text-muted-foreground border-leaf/15 border-t px-4 py-4 text-center text-xs">
+      <div className="border-t border-white/10 px-4 py-5 text-center text-xs text-white/50">
         &copy; {year} {settings.cafe_name}
       </div>
     </footer>

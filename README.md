@@ -80,7 +80,7 @@ lib/
   queries.ts         public reads, each degrading safely
   whatsapp.ts        order message and wa.me link
 supabase/            schema, seed and migrations
-middleware.ts        protects /admin
+proxy.ts             protects /admin
 ```
 
 ---
@@ -91,7 +91,7 @@ middleware.ts        protects /admin
   can write. Verified by probing with the anon key — reads succeed, writes are
   rejected or affect zero rows.
 - **Storage policies** match: public read, authenticated write and delete.
-- **`middleware.ts`** guards every `/admin` route and revalidates the token
+- **`proxy.ts`** guards every `/admin` route and revalidates the token
   with Supabase on each request, rather than trusting the cookie.
 - **Server Actions** re-check the session before writing, so an expired session
   gives a clear message instead of a policy error.

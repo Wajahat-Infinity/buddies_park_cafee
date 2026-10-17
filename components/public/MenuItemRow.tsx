@@ -13,10 +13,9 @@ import { useCart } from "@/context/CartContext";
 import type { MenuItem } from "@/lib/types";
 
 /**
- * A menu item as one compact row: photo on the left, details and the add
- * button on the right. Used on phones, where a full card per item turned a
- * category of seven burgers into three screens of scrolling; the larger
- * MenuItemCard takes over from the `sm` breakpoint.
+ * A menu item as one compact row: photo on the left, name and price on the
+ * right with the add button. Used on phones, where a full card per item turned
+ * a category into screens of scrolling, and for the home page's quick picks.
  */
 export function MenuItemRow({
   item,
@@ -39,14 +38,14 @@ export function MenuItemRow({
   return (
     <article
       className={cn(
-        "surface-3d flex gap-3 rounded-2xl border p-2.5",
+        "shadow-card text-park flex gap-3 rounded-2xl bg-white p-2",
         soldOut && "opacity-70 saturate-50",
         className
       )}
     >
       <div
         ref={photoRef}
-        className="bg-muted relative size-24 shrink-0 self-start overflow-hidden rounded-xl"
+        className="bg-paper relative size-22 shrink-0 self-start overflow-hidden rounded-xl"
       >
         {imageUrl ? (
           <>
@@ -57,7 +56,7 @@ export function MenuItemRow({
               src={imageUrl}
               alt={item.name}
               fill
-              sizes="96px"
+              sizes="88px"
               className={cn(
                 "object-cover transition-opacity duration-500",
                 soldOut && "grayscale",
@@ -67,35 +66,34 @@ export function MenuItemRow({
             />
           </>
         ) : (
-          <div className="from-muted to-secondary text-muted-foreground flex size-full items-center justify-center bg-linear-to-br">
+          <div className="text-park/40 flex size-full items-center justify-center">
             <UtensilsCrossed className="size-6" />
           </div>
         )}
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col py-0.5">
-        <h3 className="font-heading text-[0.95rem] leading-snug font-semibold text-balance">
+      <div className="flex min-w-0 flex-1 flex-col py-0.5 pr-1">
+        <h3 className="text-[0.95rem] leading-snug font-bold text-balance">
           {item.name}
         </h3>
 
         {description ? (
-          <p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs text-pretty">
+          <p className="text-park/60 mt-0.5 line-clamp-2 text-xs text-pretty">
             {description}
           </p>
         ) : null}
 
         {tags.length > 0 ? (
-          <p className="text-leaf-deep mt-1 truncate text-[0.7rem] font-medium">
+          <p className="text-park/70 mt-1 truncate text-[0.7rem] font-semibold">
             {tags.join(" · ")}
           </p>
         ) : null}
 
-        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-          <span className="text-clay font-semibold tabular-nums">
+        <div className="mt-auto flex items-center justify-between gap-2 pt-1.5">
+          <span className="font-poster text-[1.4rem] leading-none font-black tabular-nums">
             {formatPrice(item.price, currency)}
           </span>
           <AddToOrder
-            compact
             id={item.id}
             name={item.name}
             soldOut={soldOut}

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Geist, Geist_Mono, Outfit } from "next/font/google";
+import { Big_Shoulders, Figtree, Geist, Geist_Mono, Outfit } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { getSettings } from "@/lib/queries";
 
@@ -15,24 +15,31 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-/** Headings only: a geometric sans with a little more character than the body. */
+/** Admin panel headings: a geometric sans with a little more character than the body. */
 const display = Outfit({
   variable: "--font-display",
   subsets: ["latin"],
-  // 800 is for the deal posters' brush stroke titles and prices.
   weight: ["500", "600", "700", "800"],
 });
 
 /**
- * The hero caption only. A soft, slightly quirky serif — it carries the warmth
- * a garden cafe wants, and because it appears once, over photography, it can
- * afford far more personality than a heading face used throughout.
+ * Public site headlines and prices. A tall, condensed poster face, the same
+ * voice as the cafe's printed deal flyers. Used big and sparingly.
  */
-const hero = Fraunces({
-  variable: "--font-hero-serif",
+const poster = Big_Shoulders({
+  variable: "--font-poster",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  style: ["normal", "italic"],
+  weight: ["700", "800", "900"],
+  // Next has no metrics to size a fallback for this face, so name a condensed
+  // fallback outright instead of letting it guess.
+  adjustFontFallback: false,
+  fallback: ["Arial Narrow", "Roboto Condensed", "sans-serif"],
+});
+
+/** Public site body text: round and friendly, easy to read small on a phone. */
+const body = Figtree({
+  variable: "--font-body",
+  subsets: ["latin"],
 });
 
 /**
@@ -87,9 +94,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} ${hero.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} ${poster.variable} ${body.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      {/* Browser extensions (ColorZilla, Grammarly and the like) add their own
+          attributes to <body> before React loads. This only silences the
+          resulting attribute mismatch on this one tag, not on the page. */}
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {children}
         <Toaster position="top-center" richColors />
       </body>

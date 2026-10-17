@@ -1,35 +1,40 @@
-import { PageEntrance } from "@/components/motion/PageEntrance";
+import { CategoryTiles } from "@/components/public/CategoryTiles";
 import { DealsSection } from "@/components/public/DealsSection";
-import { FeaturedCarousel } from "@/components/public/FeaturedCarousel";
-import { HeroCarousel } from "@/components/public/HeroCarousel";
+import { DealsTicker } from "@/components/public/DealsTicker";
+import { HomeHero } from "@/components/public/HomeHero";
+import { HowToOrder } from "@/components/public/HowToOrder";
 import { LocationSection } from "@/components/public/LocationSection";
+import { PopularItems } from "@/components/public/PopularItems";
 import {
   getActiveDeals,
   getActiveSlides,
+  getCategoriesWithItems,
   getFeaturedItems,
   getSettings,
 } from "@/lib/queries";
 
 export default async function Home() {
-  const [settings, slides, deals, featured] = await Promise.all([
+  const [settings, slides, deals, featured, categories] = await Promise.all([
     getSettings(),
     getActiveSlides(),
     getActiveDeals(),
     getFeaturedItems(),
+    getCategoriesWithItems(),
   ]);
 
   return (
     <>
-      {/* No entrance animation: the hero is the first thing on screen and
-          should simply be there, not slide into place. */}
-      <HeroCarousel slides={slides} settings={settings} />
-      {/* Deals first: they are the strongest reason to order today. */}
-      <PageEntrance delay={0.08}>
-        <DealsSection deals={deals} currency={settings.currency} />
-      </PageEntrance>
-      <PageEntrance delay={0.12}>
-        <FeaturedCarousel items={featured} currency={settings.currency} />
-      </PageEntrance>
+      <HomeHero
+        settings={settings}
+        deals={deals}
+        slide={slides[0] ?? null}
+        featured={featured}
+      />
+      <DealsTicker deals={deals} currency={settings.currency} />
+      <CategoryTiles categories={categories} />
+      <DealsSection deals={deals} currency={settings.currency} />
+      <HowToOrder settings={settings} />
+      <PopularItems items={featured} currency={settings.currency} />
       <LocationSection settings={settings} />
     </>
   );

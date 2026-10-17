@@ -3,148 +3,115 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { MessageCircle, Phone } from "lucide-react";
+import { MessageCircle, ShoppingBag } from "lucide-react";
 
-import { motion } from "framer-motion";
-
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/context/CartContext";
 import { clean, telHref, whatsappHref } from "@/lib/format";
 import type { SiteSettings } from "@/lib/types";
 
+/** Desktop links. On phones the same places live in the bottom tab bar. */
 const NAV_LINKS = [
-  { href: "/deals", label: "Deals" },
   { href: "/menu", label: "Menu" },
+  { href: "/deals", label: "Deals" },
+  { href: "/#location", label: "Find us" },
 ] as const;
 
 /**
- * Sticky header. On the home page it sits transparently over the hero
- * carousel and turns solid once the page scrolls; everywhere else it is solid
- * from the start, since there is no hero behind it.
+ * Sticky park green header on every public page. The logo and name always,
+ * an order button always; the page links and the cart only from `md` up,
+ * since phones get them in the bottom tab bar where a thumb can reach.
  */
 export function Header({ settings }: { settings: SiteSettings }) {
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const overHero = pathname === "/" && !scrolled;
+  const { itemCount, setCartOpen } = useCart();
 
   const logoUrl = clean(settings.logo_url);
   const tagline = clean(settings.tagline);
+  const phone = clean(settings.phone_display);
   const call = telHref(settings.phone_display);
   const chat = whatsappHref(settings.phone_whatsapp, settings.whatsapp_greeting);
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 transition-all duration-500 ease-out",
-        overHero
-          ? "bg-linear-to-b from-black/55 via-black/25 to-transparent text-white"
-          : "glass text-primary-foreground shadow-lift border-b border-white/10"
-      )}
-    >
-      <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4">
-        <Link href="/" className="scene group flex min-w-0 items-center gap-2.5">
+    <header className="bg-park sticky top-0 z-40 text-white">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
+        <Link href="/" className="flex min-w-0 items-center gap-2.5">
           {logoUrl ? (
-            <motion.span
-              className="relative block shrink-0"
-              whileHover={{ rotateY: 18, rotateX: -8, scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 260, damping: 18 }}
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              {/* A halo behind the mark so it reads as lit rather than pasted
-                  on, on the photo and on the green bar alike. */}
-              <span className="bg-sun/40 absolute -inset-1 rounded-full blur-md transition-opacity duration-300 group-hover:opacity-100 opacity-0" />
-              <Image
-                src={logoUrl}
-                alt={settings.cafe_name}
-                width={40}
-                height={40}
-                className="ring-primary-foreground/25 relative size-10 rounded-full object-cover ring-2"
-                priority
-              />
-            </motion.span>
+            <Image
+              src={logoUrl}
+              alt={settings.cafe_name}
+              width={40}
+              height={40}
+              className="ring-lime size-10 shrink-0 rounded-full object-cover ring-2"
+              loading="eager"
+            />
           ) : null}
           <span className="min-w-0">
-            <span
-              className={cn(
-                "block text-sm leading-tight font-semibold max-sm:line-clamp-2 sm:truncate sm:text-lg",
-                overHero && "drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
-              )}
-            >
+            <span className="font-poster block text-xl leading-[0.95] font-black tracking-wide uppercase max-sm:line-clamp-2 sm:truncate sm:text-2xl">
               {settings.cafe_name}
             </span>
             {tagline ? (
-              <span className="hidden truncate text-xs opacity-80 sm:block">
+              <span className="text-lime hidden truncate text-xs font-semibold sm:block">
                 {tagline}
               </span>
             ) : null}
           </span>
         </Link>
 
-        <div className="ml-auto flex shrink-0 items-center gap-1.5">
-          {NAV_LINKS.map(({ href, label }) => (
-            <Button
-              key={href}
-              asChild
-              variant="ghost"
-              size="sm"
-              className="group/link relative text-inherit hover:bg-white/15 hover:text-inherit"
-            >
+        <nav aria-label="Main" className="ml-6 hidden items-center gap-1 md:flex">
+          {NAV_LINKS.map(({ href, label }) => {
+            const current = pathname === href;
+            return (
               <Link
+                key={href}
                 href={href}
-                aria-current={pathname === href ? "page" : undefined}
+                aria-current={current ? "page" : undefined}
+                className={cn(
+                  "rounded-full px-3.5 py-2 text-sm font-semibold transition-colors",
+                  current ? "text-lime" : "text-white/75 hover:text-white"
+                )}
               >
                 {label}
-                <span
-                  className={cn(
-                    "absolute inset-x-2.5 bottom-1 h-px origin-center bg-current transition-transform duration-300 group-hover/link:scale-x-100",
-                    pathname === href ? "scale-x-100" : "scale-x-0"
-                  )}
-                />
               </Link>
-            </Button>
-          ))}
+            );
+          })}
+        </nav>
 
-          {call ? (
-            <Button
-              asChild
-              variant="ghost"
-              size="icon"
-              aria-label="Call us"
-              className="hidden text-inherit hover:bg-white/15 hover:text-inherit sm:inline-flex"
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          {phone && call ? (
+            <a
+              href={call}
+              className="hidden px-2 text-sm font-semibold text-white/75 tabular-nums hover:text-white lg:block"
             >
-              <a href={call}>
-                <Phone className="size-5" />
-              </a>
-            </Button>
+              {phone}
+            </a>
           ) : null}
 
           {chat ? (
-            <Button
-              asChild
-              size="sm"
-              className={cn(
-                "gap-1.5 rounded-full transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0",
-                overHero
-                  ? "border border-white/25 bg-white/15 text-white shadow-rest backdrop-blur hover:bg-white/25"
-                  : "bg-primary-foreground text-primary shadow-rest hover:bg-primary-foreground/90"
-              )}
+            <a
+              href={chat}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-lime text-park inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-sm font-bold transition-[filter] hover:brightness-95"
             >
-              <a href={chat} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="size-4" />
-                <span className="hidden sm:inline">WhatsApp</span>
-              </a>
-            </Button>
+              <MessageCircle className="size-4" />
+              WhatsApp
+            </a>
           ) : null}
+
+          <button
+            type="button"
+            onClick={() => setCartOpen(true)}
+            aria-label={`Your order, ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
+            className="bg-park-2 relative hidden size-10 place-items-center rounded-full transition-colors hover:bg-white/15 md:grid"
+          >
+            <ShoppingBag className="size-5" />
+            {itemCount > 0 ? (
+              <span className="bg-lime text-park absolute -top-1 -right-1 min-w-5 rounded-full px-1.5 py-0.5 text-center text-[0.7rem] leading-none font-extrabold tabular-nums">
+                {itemCount}
+              </span>
+            ) : null}
+          </button>
         </div>
       </div>
     </header>

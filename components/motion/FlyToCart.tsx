@@ -37,15 +37,24 @@ type FlyValue = {
 
 const FlyContext = createContext<FlyValue | null>(null);
 
+/** Centre of an element, if it is on screen at all. */
+function centreOf(id: string) {
+  const element = document.getElementById(id);
+  if (!element || element.offsetParent === null) return null;
+  const rect = element.getBoundingClientRect();
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+}
+
 /**
- * Where the cart bar sits. On the first add the bar is not mounted yet (it
- * appears with the very item being thrown), so fall back to the spot it is
- * about to slide into: bottom centre of the screen.
+ * Where the order lives on screen. On the first add the order bar is not
+ * mounted yet (it appears with the very item being thrown), so fall back to
+ * the Order tab on phones, then to the bar's spot at the bottom centre.
  */
 function cartTarget() {
-  const bar = document.getElementById("cart-bar")?.getBoundingClientRect();
-  if (bar) return { x: bar.left + bar.width / 2, y: bar.top + bar.height / 2 };
-  return { x: window.innerWidth / 2, y: window.innerHeight - 40 };
+  return (
+    centreOf("cart-bar") ??
+    centreOf("cart-tab") ?? { x: window.innerWidth / 2, y: window.innerHeight - 40 }
+  );
 }
 
 /**
@@ -102,7 +111,7 @@ export function FlyToCartProvider({ children }: { children: ReactNode }) {
         {flights.map((flight) => (
           <motion.div
             key={flight.id}
-            className="bg-clay shadow-float absolute rounded-2xl bg-cover bg-center ring-2 ring-white"
+            className="bg-lime absolute rounded-2xl bg-cover bg-center shadow-lg ring-2 ring-white"
             style={{
               left: flight.fromX - THUMB / 2,
               top: flight.fromY - THUMB / 2,

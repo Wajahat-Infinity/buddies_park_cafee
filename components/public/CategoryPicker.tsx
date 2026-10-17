@@ -13,17 +13,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { clean } from "@/lib/format";
+import { categoryThumbnail } from "@/lib/menu";
 import type { CategoryWithItems } from "@/lib/types";
-
-/** The first photo in a category stands in as its icon; categories have none. */
-function thumbnailOf(category: CategoryWithItems) {
-  for (const item of category.items) {
-    const url = clean(item.image_url);
-    if (url) return url;
-  }
-  return null;
-}
 
 function Thumb({
   category,
@@ -32,11 +23,11 @@ function Thumb({
   category: CategoryWithItems;
   className?: string;
 }) {
-  const url = thumbnailOf(category);
+  const url = categoryThumbnail(category);
   return (
     <span
       className={cn(
-        "bg-muted text-muted-foreground relative flex shrink-0 items-center justify-center overflow-hidden",
+        "bg-paper text-park/40 relative flex shrink-0 items-center justify-center overflow-hidden",
         className
       )}
     >
@@ -94,12 +85,12 @@ export function CategoryPicker({
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="bg-card shadow-rest flex h-13 w-full items-center gap-3 rounded-full border py-1.5 pr-1.5 pl-1.5 text-left transition-transform active:scale-[0.99]"
+        className="ring-lime text-park flex h-13 w-full items-center gap-3 rounded-full bg-white py-1.5 pr-1.5 pl-1.5 text-left shadow-[0_8px_18px_-12px_rgb(12_42_27/0.5)] ring-2 transition-transform active:scale-[0.99]"
       >
         <Thumb category={current} className="size-10 rounded-full" />
 
         <span className="min-w-0 flex-1">
-          <span className="text-clay block text-[0.65rem] font-semibold tracking-[0.16em] uppercase">
+          <span className="text-park/60 block text-[0.65rem] font-bold tracking-[0.16em] uppercase">
             Category
           </span>
           <AnimatePresence mode="wait" initial={false}>
@@ -109,14 +100,14 @@ export function CategoryPicker({
               animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
-              className="block truncate text-sm leading-tight font-semibold"
+              className="block truncate text-sm leading-tight font-bold"
             >
               {current.name}
             </motion.span>
           </AnimatePresence>
         </span>
 
-        <span className="bg-primary text-primary-foreground flex h-10 shrink-0 items-center gap-1 rounded-full pr-3 pl-4 text-xs font-semibold">
+        <span className="bg-park text-lime flex h-10 shrink-0 items-center gap-1 rounded-full pr-3 pl-4 text-xs font-bold">
           All {categories.length}
           <ChevronDown
             className={cn(
@@ -130,7 +121,7 @@ export function CategoryPicker({
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
           side="bottom"
-          className="max-h-[85dvh] gap-0 rounded-t-3xl pb-[max(1rem,env(safe-area-inset-bottom))]"
+          className="bg-paper text-park font-body max-h-[85dvh] gap-0 rounded-t-3xl border-none pb-[max(1rem,env(safe-area-inset-bottom))]"
           onCloseAutoFocus={(event) => {
             // Return focus by hand, without letting the browser scroll to the
             // pinned trigger, then let the page move to the chosen list.
@@ -142,13 +133,13 @@ export function CategoryPicker({
             }
           }}
         >
-          <div aria-hidden className="bg-border mx-auto mt-3 h-1.5 w-12 rounded-full" />
+          <div aria-hidden className="bg-park/15 mx-auto mt-3 h-1.5 w-12 rounded-full" />
 
           <SheetHeader className="pb-2 text-center">
-            <SheetTitle className="text-lg font-semibold">
+            <SheetTitle className="font-poster text-park text-3xl leading-none font-black uppercase">
               Choose a category
             </SheetTitle>
-            <SheetDescription>
+            <SheetDescription className="text-park/60">
               {categories.length} categories · {itemTotal} items
             </SheetDescription>
           </SheetHeader>
@@ -170,21 +161,26 @@ export function CategoryPicker({
                     ease: "easeOut",
                   }}
                   className={cn(
-                    "flex min-h-16 items-center gap-2.5 rounded-2xl border p-2 text-left transition-colors active:scale-[0.98]",
+                    "flex min-h-16 items-center gap-2.5 rounded-2xl p-2 text-left transition-colors active:scale-[0.98]",
                     selected
-                      ? "bg-primary text-primary-foreground border-primary shadow-lift"
-                      : "bg-card shadow-rest hover:bg-muted"
+                      ? "bg-park text-white"
+                      : "shadow-card bg-white hover:bg-white/70"
                   )}
                 >
                   <Thumb category={category} className="size-11 rounded-xl" />
                   <span className="min-w-0">
-                    <span className="block text-sm leading-tight font-semibold text-balance">
+                    <span
+                      className={cn(
+                        "block text-sm leading-tight font-bold text-balance",
+                        selected && "text-lime"
+                      )}
+                    >
                       {category.name}
                     </span>
                     <span
                       className={cn(
                         "mt-0.5 block text-xs tabular-nums",
-                        selected ? "opacity-80" : "text-muted-foreground"
+                        selected ? "text-white/70" : "text-park/55"
                       )}
                     >
                       {category.items.length}{" "}

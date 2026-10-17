@@ -5,25 +5,27 @@ import { useState } from "react";
 import {
   CheckCircle2,
   Loader2,
+  MessageCircle,
   Minus,
   Phone,
   Plus,
   ShoppingBag,
   Trash2,
+  UtensilsCrossed,
+  X,
 } from "lucide-react";
 
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
@@ -36,7 +38,14 @@ import {
 } from "@/lib/whatsapp";
 import type { SiteSettings } from "@/lib/types";
 
-/** Slide in cart, and the hand off to WhatsApp. */
+/** Small uppercase label above each checkout field. */
+const FIELD_LABEL = "text-park/60 text-[0.7rem] font-bold tracking-[0.12em] uppercase";
+const FIELD = "h-11 rounded-xl border-none bg-white shadow-card text-park";
+
+/**
+ * The checkout: a full screen on phones, a side panel on desktop, and the
+ * hand off to WhatsApp.
+ */
 export function CartDrawer({
   open,
   onOpenChange,
@@ -112,43 +121,65 @@ export function CartDrawer({
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent side="right" className="flex w-full flex-col sm:max-w-md">
-        <SheetHeader>
-          <SheetTitle>Your order</SheetTitle>
-          <SheetDescription>
-            {itemCount > 0
-              ? `${itemCount} ${itemCount === 1 ? "item" : "items"} ready to send`
-              : "Nothing added yet"}
-          </SheetDescription>
+      <SheetContent
+        side="right"
+        showCloseButton={false}
+        // The sheet sets its width with a data attribute selector, which beats
+        // a plain `w-full`; match it so phones get the whole screen.
+        className="bg-paper text-park font-body flex flex-col gap-0 border-none p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md"
+      >
+        <SheetHeader className="bg-park flex-row items-center justify-between gap-3 px-5 pt-5 pb-4 text-white">
+          <div>
+            <SheetTitle className="font-poster text-4xl leading-none font-black text-white uppercase">
+              Your order
+            </SheetTitle>
+            <SheetDescription className="mt-1 text-white/60">
+              {itemCount > 0
+                ? `${itemCount} ${itemCount === 1 ? "item" : "items"} ready to send`
+                : "Nothing added yet"}
+            </SheetDescription>
+          </div>
+          <SheetClose
+            aria-label="Close"
+            className="bg-park-2 grid size-10 shrink-0 place-items-center rounded-full transition-colors hover:bg-white/15"
+          >
+            <X className="size-5" />
+          </SheetClose>
         </SheetHeader>
 
         {lines.length === 0 ? (
-          <div className="text-muted-foreground flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-8 text-center">
+            <span className="bg-lime text-park grid size-16 place-items-center rounded-full">
+              {sent ? (
+                <CheckCircle2 className="size-8" />
+              ) : (
+                <ShoppingBag className="size-7" />
+              )}
+            </span>
             {sent ? (
               <>
-                <CheckCircle2 className="text-primary size-10" />
-                <p className="text-foreground text-sm font-medium">
-                  Your order is on its way to WhatsApp.
+                <p className="font-poster mt-2 text-3xl leading-none font-black uppercase">
+                  Order on its way
                 </p>
-                <p className="text-sm">
-                  Finish sending the message there and we will confirm shortly.
+                <p className="text-park/65 text-sm">
+                  Finish sending the message in WhatsApp and we will confirm
+                  shortly.
                 </p>
               </>
             ) : (
-              <>
-                <ShoppingBag className="size-10" />
-                <p className="text-sm">
-                  Your cart is empty. Browse the menu and add something you
-                  like.
-                </p>
-              </>
+              <p className="text-park/65 text-sm">
+                Your order is empty. Browse the menu and add something you like.
+              </p>
             )}
           </div>
         ) : (
-          <div className="flex-1 space-y-3 overflow-y-auto px-4">
+          <div className="flex-1 space-y-2.5 overflow-y-auto px-4 pt-4 pb-2">
             {lines.map((line) => (
-              <div key={line.id} className="flex gap-3 rounded-lg border p-3">
-                <div className="bg-muted relative size-16 shrink-0 overflow-hidden rounded-md">
+              <div
+                key={line.id}
+                className="shadow-card flex items-center gap-3 rounded-2xl bg-white p-2"
+              >
+                <div className="bg-paper text-park/40 relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl">
                   {line.imageUrl ? (
                     <Image
                       src={line.imageUrl}
@@ -157,51 +188,48 @@ export function CartDrawer({
                       sizes="64px"
                       className="object-cover"
                     />
-                  ) : null}
+                  ) : (
+                    <UtensilsCrossed className="size-5" />
+                  )}
                 </div>
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm leading-snug font-medium">
-                      {line.name}
-                    </p>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="text-muted-foreground hover:text-destructive size-7 shrink-0"
+                    <p className="text-sm leading-snug font-bold">{line.name}</p>
+                    <button
+                      type="button"
+                      className="text-park/40 hover:text-chili -mt-0.5 grid size-7 shrink-0 place-items-center rounded-full transition-colors"
                       onClick={() => removeItem(line.id)}
                       aria-label={`Remove ${line.name}`}
                     >
                       <Trash2 className="size-4" />
-                    </Button>
+                    </button>
                   </div>
 
-                  <div className="mt-2 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1 rounded-md border p-0.5">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-7 transition-transform active:scale-90"
+                  <div className="mt-1.5 flex items-center justify-between gap-2">
+                    <div className="bg-park flex items-center gap-1 rounded-full p-0.5 text-white">
+                      <button
+                        type="button"
+                        className="bg-park-2 grid size-7 place-items-center rounded-full transition-transform active:scale-90"
                         onClick={() => decrement(line.id)}
                         aria-label={`Remove one ${line.name}`}
                       >
-                        <Minus className="size-3.5" />
-                      </Button>
-                      <span className="min-w-5 text-center text-sm font-semibold tabular-nums">
+                        <Minus className="size-3.5" strokeWidth={2.75} />
+                      </button>
+                      <span className="min-w-5 text-center text-sm font-extrabold tabular-nums">
                         {line.quantity}
                       </span>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-7 transition-transform active:scale-90"
+                      <button
+                        type="button"
+                        className="bg-lime text-park grid size-7 place-items-center rounded-full transition-transform active:scale-90"
                         onClick={() => increment(line.id)}
                         aria-label={`Add one more ${line.name}`}
                       >
-                        <Plus className="size-3.5" />
-                      </Button>
+                        <Plus className="size-3.5" strokeWidth={2.75} />
+                      </button>
                     </div>
 
-                    <span className="text-sm font-semibold whitespace-nowrap">
+                    <span className="font-poster text-xl leading-none font-black whitespace-nowrap tabular-nums">
                       {formatPrice(line.price * line.quantity, currency)}
                     </span>
                   </div>
@@ -212,111 +240,125 @@ export function CartDrawer({
         )}
 
         {lines.length > 0 ? (
-          <SheetFooter className="gap-3">
-            <Separator />
-
-            <div className="space-y-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="order-name">Your name</Label>
-                <Input
-                  id="order-name"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Name for the order"
-                  autoComplete="name"
-                />
+          <SheetFooter className="gap-4 border-t border-black/5 bg-white/60 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="space-y-1.5">
+              <span className={FIELD_LABEL}>How do you want it?</span>
+              <div className="bg-park/8 grid grid-cols-2 gap-1 rounded-full p-1">
+                {(["pickup", "delivery"] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={fulfilment === option}
+                    onClick={() => setFulfilment(option)}
+                    className={cn(
+                      "flex h-10 items-center justify-center gap-1.5 rounded-full text-sm font-bold capitalize transition-colors",
+                      fulfilment === option
+                        ? "bg-park text-lime"
+                        : "text-park/70 hover:text-park"
+                    )}
+                  >
+                    {option}
+                    {option === "delivery" && feeHint ? (
+                      <span className="text-xs font-semibold opacity-75">
+                        +{feeHint}
+                      </span>
+                    ) : null}
+                  </button>
+                ))}
               </div>
-
-              <div className="space-y-1.5">
-                <span className="text-sm font-medium">Pickup or delivery</span>
-                <div className="grid grid-cols-2 gap-2">
-                  {(["pickup", "delivery"] as const).map((option) => (
-                    <Button
-                      key={option}
-                      type="button"
-                      variant={fulfilment === option ? "default" : "outline"}
-                      className={cn("capitalize")}
-                      onClick={() => setFulfilment(option)}
-                    >
-                      {option}
-                      {option === "delivery" && feeHint ? (
-                        <span className="text-xs font-normal opacity-80">
-                          +{feeHint}
-                        </span>
-                      ) : null}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {needsAddress ? (
-                <div className="space-y-1.5">
-                  <Label htmlFor="order-address">Delivery address</Label>
-                  <Textarea
-                    id="order-address"
-                    value={address}
-                    onChange={(event) => setAddress(event.target.value)}
-                    rows={2}
-                    placeholder="House and street, area"
-                    autoComplete="street-address"
-                  />
-                  {deliveryNote ? (
-                    <p className="text-muted-foreground text-xs">
-                      {deliveryNote}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
             </div>
 
-            <Separator />
-            {fee || feeWaived ? (
-              <div className="text-muted-foreground space-y-1 text-sm">
-                <div className="flex items-center justify-between">
-                  <span>Subtotal</span>
-                  <span className="tabular-nums">
-                    {formatPrice(subtotal, currency)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Delivery</span>
-                  <span className={fee ? "tabular-nums" : "text-primary"}>
-                    {fee ? formatPrice(fee, currency) : "Free"}
-                  </span>
-                </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="order-name" className={FIELD_LABEL}>
+                Name for the order
+              </Label>
+              <Input
+                id="order-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Your name"
+                autoComplete="name"
+                className={FIELD}
+              />
+            </div>
+
+            {needsAddress ? (
+              <div className="space-y-1.5">
+                <Label htmlFor="order-address" className={FIELD_LABEL}>
+                  Delivery address
+                </Label>
+                <Textarea
+                  id="order-address"
+                  value={address}
+                  onChange={(event) => setAddress(event.target.value)}
+                  rows={2}
+                  placeholder="House and street, area"
+                  autoComplete="street-address"
+                  className={cn(FIELD, "h-auto")}
+                />
+                {deliveryNote ? (
+                  <p className="text-park/60 text-xs">{deliveryNote}</p>
+                ) : null}
               </div>
             ) : null}
-            <div className="flex items-center justify-between text-base font-semibold">
-              <span>Total</span>
-              <span className="tabular-nums">
-                {formatPrice(subtotal + fee, currency)}
-              </span>
+
+            <div className="space-y-1.5">
+              {fee || feeWaived ? (
+                <div className="text-park/70 space-y-1 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span>Subtotal</span>
+                    <span className="tabular-nums">
+                      {formatPrice(subtotal, currency)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Delivery</span>
+                    <span className={fee ? "tabular-nums" : "text-park font-bold"}>
+                      {fee ? formatPrice(fee, currency) : "Free"}
+                    </span>
+                  </div>
+                </div>
+              ) : null}
+              <div className="border-park/20 font-poster flex items-center justify-between border-t border-dashed pt-2 text-3xl leading-none font-black uppercase">
+                <span>Total</span>
+                <span className="tabular-nums">
+                  {formatPrice(subtotal + fee, currency)}
+                </span>
+              </div>
             </div>
+
             {clean(settings.phone_whatsapp) ? (
-              <Button
-                size="lg"
-                className="w-full"
+              <button
+                type="button"
+                className="bg-park text-lime flex h-13 w-full items-center justify-center gap-2 rounded-full font-bold transition-opacity disabled:opacity-50"
                 onClick={sendOrder}
                 disabled={lines.length === 0 || sending || !detailsComplete}
               >
-                {sending ? <Loader2 className="size-4 animate-spin" /> : null}
+                {sending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <MessageCircle className="size-5" />
+                )}
                 Send order on WhatsApp
-              </Button>
+              </button>
             ) : call ? (
               // No WhatsApp number in settings: fall back to a phone call.
-              <Button asChild size="lg" className="w-full">
-                <a href={call}>
-                  <Phone className="size-4" />
-                  Call to order{phone ? ` ${phone}` : ""}
-                </a>
-              </Button>
+              <a
+                href={call}
+                className="bg-park text-lime flex h-13 w-full items-center justify-center gap-2 rounded-full font-bold"
+              >
+                <Phone className="size-4" />
+                Call to order{phone ? ` ${phone}` : ""}
+              </a>
             ) : null}
 
-            {clean(settings.phone_whatsapp) && !detailsComplete ? (
-              <p className="text-muted-foreground text-center text-xs">
-                {name.trim()
-                  ? "Add your delivery address to send the order."
-                  : "Add your name to send the order."}
+            {clean(settings.phone_whatsapp) ? (
+              <p className="text-park/60 -mt-1 text-center text-xs">
+                {detailsComplete
+                  ? "WhatsApp opens with your order written out. Press send and we'll confirm."
+                  : name.trim()
+                    ? "Add your delivery address to send the order."
+                    : "Add your name to send the order."}
               </p>
             ) : null}
           </SheetFooter>

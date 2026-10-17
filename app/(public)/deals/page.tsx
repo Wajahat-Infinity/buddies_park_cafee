@@ -1,10 +1,7 @@
 import Link from "next/link";
 
-import { FadeIn } from "@/components/motion/FadeIn";
-import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
 import { DealCard } from "@/components/public/DealCard";
 import { SectionHeading } from "@/components/public/SectionHeading";
-import { Button } from "@/components/ui/button";
 import { getActiveDeals, getSettings } from "@/lib/queries";
 
 export const metadata = { title: "Deals" };
@@ -17,31 +14,37 @@ export default async function DealsPage() {
   ]);
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-12">
-      <FadeIn>
-        <SectionHeading as="h1" eyebrow="Good food. Better value.">
-          Buddies&rsquo; hot deals
+    <section className="bg-park">
+      <div className="mx-auto max-w-5xl px-4 pt-12 pb-16">
+        <SectionHeading as="h1" tone="dark" eyebrow="Good food. Better value.">
+          Hot deals
         </SectionHeading>
-      </FadeIn>
 
-      {deals.length === 0 ? (
-        <div className="mt-6 text-center">
-          <p className="text-muted-foreground text-sm">
-            No deals are running right now. The full menu is always available.
-          </p>
-          <Button asChild className="press-3d mt-5 rounded-full px-5">
-            <Link href="/menu">Browse the menu</Link>
-          </Button>
-        </div>
-      ) : (
-        <StaggerGroup className="mt-10 space-y-6" stagger={0.08}>
-          {deals.map((deal) => (
-            <StaggerItem key={deal.id}>
-              <DealCard deal={deal} currency={settings.currency} />
-            </StaggerItem>
-          ))}
-        </StaggerGroup>
-      )}
+        {deals.length === 0 ? (
+          <div className="mt-6 text-white/75">
+            <p className="text-sm">
+              No deals are running right now. The full menu is always available.
+            </p>
+            <Link
+              href="/menu"
+              className="bg-lime text-park mt-5 inline-flex h-11 items-center rounded-full px-6 font-bold"
+            >
+              Browse the menu
+            </Link>
+          </div>
+        ) : (
+          <>
+            <p className="mt-3 text-sm font-semibold text-white/60">
+              {deals.length} {deals.length === 1 ? "deal" : "deals"} running
+            </p>
+            <div className="mt-8 grid gap-6">
+              {deals.map((deal) => (
+                <DealCard key={deal.id} deal={deal} currency={settings.currency} />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </section>
   );
 }
